@@ -1,0 +1,48 @@
+<h1>Register </h1>
+<form class="reg-form" action="/register" id="registration-form" method="post">
+    <div>
+        <label for="firstNameInput">First name:</label>
+        <input name="firstNameInput" id="firstNameInput" type="text">
+        <div class="error" id="no-fname" hidden>Please provide first name</div>   
+    </div>
+    </br>
+    <div>
+        <label for="lastNameInput">Last name:</label>
+        <input name="lastNameInput" id="lastNameInput" type="text">
+        <div class="error" id="no-lname" hidden>Please provide last name</div>
+    </div>
+    </br>
+    <div>
+        <label for="emailAddressInput">Enter email:</label>
+        <input name="emailAddressInput" id="emailAddressInput" type="email">    
+    </div>
+    <div class="error" id="no-email" hidden>Please provide an email</div>
+    </br>
+    <div>
+        <label for="passwordInput">Enter password:</label>
+        <input name="passwordInput" id="passwordInput" type="password">
+    </div>
+    <div class="error" id="no-pass" hidden>Please provide a password</div>
+    </br>
+    <div>
+        <label for="confirmPasswordInput">Confirm password:</label>
+        <input name="confirmPasswordInput" id="confirmPasswordInput" type="password">
+    </div>
+    <div class="error" id="no-pass-confirm" hidden>Please confirm password</div>
+    </br>
+    <div>
+        <label for="roleInput"></label>
+        <select name="roleInput" id="roleInput">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
+    <div class="error" id="no-role" hidden>Please select role</div>
+    </br>
+    <button class="submit" type="submit">Register</button>
+    </br>
+</form>
+</br>
+</br>
+
+<a href="/login">Already have an account? Click here to log-in</a> 
