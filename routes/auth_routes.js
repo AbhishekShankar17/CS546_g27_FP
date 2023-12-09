@@ -78,11 +78,11 @@ router
       }
       emailAddressInput = emailAddressInput.toLowerCase();
       if (
-        !/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+        !/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@stevens\.edu$/.test(
           emailAddressInput
         )
       ) {
-        throw "Error: Invalid email address";
+        throw "Error: Email address must end with stevens.edu";
       }
 
       passwordInput = validation.checkString(
