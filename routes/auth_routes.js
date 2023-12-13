@@ -1,8 +1,9 @@
 //import express, express router as shown in lecture code
 
-import { createEvent, createUser } from "../data/users.js";
+import { createEvent, createUser, getallevents, updateUser, getUserById, getallusers  } from "../data/users.js";
 import { checkUser } from "../data/users.js";
 import validation from '../helpers.js';
+
 
 import { Router } from "express";
 const router = Router();
@@ -233,49 +234,108 @@ router.route("/logout").get(async (req, res) => {
   res.render("logout");
 });
 
+// router.route("/createEvent")
+//   .get(async (req, res) => {
+//     //code here for GET
+//     res.render("createEvent");
+//   })
+//   .post(async (req, res) => {
+//     //code here for POST
+//     try {
+//       // const {organizer, capacity, date, duration,location,time,eventName } = req.body;
+//       // const newMeeting = new Meeting({
+//       //         organizer,
+//       //         capacity,
+//       //         room,
+//       //         date,
+//       //         duration,
+//       //         location,
+//       //         time,
+//       //         eventName,
+//       //         // Add other meeting properties as needed
+//       //       });
+        
+//             const savedMeeting = await createEvent(
+//               req.body.organizer,
+//               req.body.capacity,
+//               req.body.date,
+//               req.body.duration,
+//               req.body.location,
+//               req.body.time,
+//               req.body.eventName,
+//             );
+        
+//             // Deduct credits from the organizer
+//             const updatedUser = await User.findByIdAndUpdate(
+//               organizer,
+//               { $inc: { credits: -1 } }, // Assuming each meeting costs 1 credit
+//               { new: true }
+//             );
+        
+//             res.status(201).json({ meeting: savedMeeting, user: updatedUser });
+//     } catch (e) {
+//       return res.status(400).render("createEvent", { error: `${e}`});
+//     }
+//   });
+
 router.route("/createEvent")
   .get(async (req, res) => {
-    //code here for GET
-    res.render("createEvent");
+    // Check if the user is an admin
+    let admin = false;
+
+    if (req.session.user) {
+      try {
+        if (req.session.user.role === "admin") {
+          admin = true;
+          return res.render("createEvent", {
+            firstName: req.session.user.firstName,
+            role: req.session.user.role,
+            admin: admin,
+          });
+        }
+      } catch (e) {
+        console.error(e);
+        return res.status(500).render('error', { error: `${e}` });
+      }
+    }
+
+    // If the user is not an admin or not logged in, handle accordingly
+    return res.status(403).render("createEvent", { error: "You do not have permission to create events." });
   })
+  router.route("/createEvent")
   .post(async (req, res) => {
-    //code here for POST
     try {
-      // const {organizer, capacity, date, duration,location,time,eventName } = req.body;
-      // const newMeeting = new Meeting({
-      //         organizer,
-      //         capacity,
-      //         room,
-      //         date,
-      //         duration,
-      //         location,
-      //         time,
-      //         eventName,
-      //         // Add other meeting properties as needed
-      //       });
-        
-            const savedMeeting = await createEvent(
-              req.body.organizer,
-              req.body.capacity,
-              req.body.date,
-              req.body.duration,
-              req.body.location,
-              req.body.time,
-              req.body.eventName,
-            );
-        
-            // Deduct credits from the organizer
-            const updatedUser = await User.findByIdAndUpdate(
-              organizer,
-              { $inc: { credits: -1 } }, // Assuming each meeting costs 1 credit
-              { new: true }
-            );
-        
-            res.status(201).json({ meeting: savedMeeting, user: updatedUser });
+      // Check if the user is an admin
+      if (req.session.user.role === "admin") {
+        // Rest of the code for POST
+
+        const result = await createEvent(
+          req.body.organizer,
+          req.body.capacity,
+          req.body.date,
+          req.body.duration,
+          req.body.location,
+          req.body.time,
+          req.body.eventName
+        );
+
+        //const savedMeeting = result.meeting;
+        //const updatedUser = result.user;
+
+        // Redirect to /login upon successful event creation
+        return res.redirect("/login");
+      } else {
+        // If the user is not an admin, handle accordingly
+        return res.status(403).json({ error: "You do not have permission to create events." });
+      }
     } catch (e) {
-      return res.status(400).render("createEvent", { error: `${e}`});
+      console.error(e);
+      return res.status(400).render("createEvent", { error: `${e}` });
     }
   });
+
+
+
 
 // router.route("/createEvent").get(async (req, res) => {
 //   res.render("createEvent");
@@ -357,4 +417,188 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+router.route("/filters").get(async (req, res) => {
+  //code here for GET
+  //let admin = false;
+  
+  
+  try {
+    
+    const eventsList = await getallevents();
+    res.json(eventsList);
+    console.log("Got the event successfully");
+  } catch (e) {
+    res.status(200).json({error: e});
+  }  
+});
+
+// router.route("/filters").get(async (req, res) => {
+
+//   const eventsList = await getallevents();
+//   let filteredEvents = eventsList;
+
+//   if (req.query.search) {
+
+//     const searchTerm = req.query.search;
+
+//     // Filter the array directly   
+//     filteredEvents = filteredEvents.filter(event => {
+//       return event.eventName.includes(searchTerm) || 
+//         event.organizer.includes(searchTerm) ||
+//         event.capacity.includes(searchTerm) ||
+//         event.date.includes(searchTerm) ||
+//         event.duration.includes(searchTerm) ||
+//         event.location.includes(searchTerm) ||
+//         event.time.includes(searchTerm) ||
+//         event.eventName.includes(searchTerm)
+//     });
+
+//   }
+
+//   res.json(filteredEvents);
+
+// });
+
+
+
+
+
+router
+  .route("/edituser")
+  .get(async (req, res) => {
+    //code here for GET
+    res.render("edituser");
+  })
+  .post(async (req, res) => {
+    //code here for POST
+    try {
+      let newfirstNameInput;
+      let newlastNameInput;
+      let newemailAddressInput;
+      let newpasswordInput;
+      let newconfirmPasswordInput;
+      let newroleInput;
+      
+      if(req.body){
+        newfirstNameInput= req.body.newfirstNameInput;
+        newlastNameInput= req.body.newlastNameInput;
+        newemailAddressInput= req.body.newemailAddressInput;
+        newpasswordInput= req.body.newpasswordInput;
+        newconfirmPasswordInput= req.body.newconfirmPasswordInput;
+        newroleInput= req.body.newroleInput;
+      }
+
+      if (
+        !newfirstNameInput ||
+        !newlastNameInput ||
+        !newemailAddressInput ||
+        !newpasswordInput ||
+        !newroleInput ||
+        !newconfirmPasswordInput
+      ) {
+        throw "Error: Must provide all fields";
+      }
+      newfirstNameInput = validation.checkString(
+        newfirstNameInput,
+        "First name"
+      );
+      if (newfirstNameInput.length < 2 || newfirstNameInput.length > 25) {
+        throw "Error: Invalid first name length";
+      }
+      newlastNameInput = validation.checkString(
+        newlastNameInput,
+        "Last name"
+      );
+      if (newlastNameInput.length < 2 || newlastNameInput.length > 25) {
+        throw "Error: Invalid new last name length";
+      }
+      newemailAddressInput = newemailAddressInput.toLowerCase();
+      if (
+        !/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@stevens\.edu$/.test(
+          newemailAddressInput
+        )
+      ) {
+        throw "Error: new Email address must end with stevens.edu";
+      }
+
+      newpasswordInput = validation.checkString(
+        newpasswordInput,
+        "Password"
+      );
+      if (/^(.{0,7}|[^0-9]*|[^A-Z]*|[a-zA-Z0-9]*)$/.test(newpasswordInput)) {
+        throw "Error: Invalid new Passwords";
+      }
+      if (newpasswordInput.match(/\s/g)) {
+        throw "Error: Invalid new Passwords";
+      }
+      if (newconfirmPasswordInput !== newpasswordInput) {
+        throw "Error: new Passwords do not match";
+      }
+      newroleInput = validation.checkString(newroleInput, "Role");
+      if (!/^(admin|user)$/.test(newroleInput)) {
+        throw "Error: Invalid new role";
+      }
+    } catch (e) {
+      return res.status(400).render("edituser", { error: `${e}`});
+    }
+    // try {
+
+    //    await updateUser(
+    //     req.body.newfirstNameInput,
+    //     req.body.newlastNameInput,
+    //     req.body.newemailAddressInput,
+    //     req.body.newpasswordInput,
+    //     req.body.newroleInput
+    //   );
+
+    //   res.redirect("/login");
+    // } catch (e) {
+    //   res.status(400).render("edituser", { error: `${e}`}
+    //   );
+    // }
+
+    try {
+      req.session.user.firstName = req.body.newfirstNameInput;
+      req.session.user.lastName = req.body.newlastNameInput;
+      req.session.user.emailAddress = req.body.newemailAddressInput;
+      req.session.user.role = req.body.newroleInput;
+
+      res.redirect("/login");
+    } catch (e) {
+      res.status(400).render("edituser", { error: `${e}` });
+    }
+    
+  });
+
+  router.route("/viewuser").get(async (req, res) => {
+    //code here for GET
+    let admin = false;
+    
+    if(req.session.user){
+    try{
+      if (req.session.user.role === "admin") {
+        admin = true;
+        res.render("viewuser", {
+          firstName: req.session.user.firstName,
+          lastName: req.session.user.lastName,
+          emailAddress: req.session.user.emailAddress,
+          role: req.session.user.role,
+          credits: req.session.user.credits,
+      });
+    }
+    }catch(e){
+      return res.status(500).render('error', {error:`${e}`});
+    }
+    
+    res.render("viewuser", {
+      firstName: req.session.user.firstName,
+      lastName: req.session.user.lastName,
+      emailAddress: req.session.user.emailAddress,
+      role: req.session.user.role,
+      credits: req.session.user.credits,
+    });
+    }
+  });
+
 export default router;

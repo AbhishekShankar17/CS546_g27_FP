@@ -1,0 +1,33 @@
+<h1>{{firstName}} 's profile </h1>
+</br>
+<div>
+    Hello {{firstName}} !! Here is your profile
+</div>
+</br>
+<div>
+    FirstName: {{firstName}}
+</div>
+</br>
+<div>
+    lastName: {{lastName}}
+</div>
+</br>
+<div>
+    emailAddress: {{emailAddress}}
+</div>
+</br>
+<div>
+    role: {{role}}
+</div>
+</br>
+<div>
+    credits: {{credits}}
+</div>
+
+{{#if admin}}
+<p><a href="/admin">Back to the admin page</a></p>
+{{/if}}
+</br>
+</br>
+
+<a class="Goback" href="/login" style="position:absolute; bottom:1cm">Goback</a>
