@@ -1,0 +1,48 @@
+<h1>Create the Meeting </h1>
+<form class="meeting-form" action="/createEvent" id="eventCreation-form" method="post">
+    <div>
+        <label for="organizer">Enter Organizer:</label>
+        <input name="organizer" id="organizer" type="text">    
+    </div>
+    <div class="error" id="no-organizer" hidden>Please provide an organizer</div>
+    </br>
+    <div>
+        <label for="capacity">Enter Capacity:</label>
+        <input name="capacity" id="capacity" type="number">
+    </div>
+    <div class="error" id="no-capacity" hidden>Please provide a capacity</div>
+    </br>
+    <div>
+        <label for="date">Enter date:</label>
+        <input name="date" id="date" type="date">
+    </div>
+    <div class="error" id="no-date" hidden>Please provide a date</div>
+    </br>
+    <div>
+        <label for="duration">Enter duration:</label>
+        <input name="duration" id="duration" type="number">
+    </div>
+    <div class="error" id="no-duration" hidden>Please provide a capacity</div>
+    </br>
+    <div>
+        <label for="location">Enter location:</label>
+        <input name="location" id="location" type="text">
+    </div>
+    <div class="error" id="no-location" hidden>Please provide a capacity</div>
+    </br>
+    <div>
+        <label for="time">Enter time:</label>
+        <input name="time" id="time" type="time">
+    </div>
+    <div class="error" id="no-time" hidden>Please provide a capacity</div>
+    </br>
+    <div>
+        <label for="eventName">Enter eventName:</label>
+        <input name="eventName" id="eventName" type="text">
+    </div>
+    <div class="error" id="no-eventName" hidden>Please provide a eventName</div>
+    </br>
+    <button class="log" type="submit">Create Meeting</button>
+</form>
+</br>
+</br>

@@ -1,0 +1,52 @@
+<h1>edituser </h1>
+</br>
+<form class="edit-form" action="/edituser" id="edituser-form" method="post">
+<div>
+    Hello {{firstName}}!! Update your profile here !!!
+</div>
+</br>
+    <div>
+        <label for="newfirstNameInput">First name:</label>
+        <input name="newfirstNameInput" id="newfirstNameInput" type="text" placeholder="Enter updated first name">
+        <div class="error" id="no-fname" hidden>Please provide first name</div>   
+    </div>
+    </br>
+    <div>
+        <label for="newlastNameInput">Last name:</label>
+        <input name="newlastNameInput" id="newlastNameInput" type="text" placeholder="Enter updated last name">
+        <div class="error" id="no-lname" hidden>Please provide new last name</div>
+    </div>
+    </br>
+    <div>
+        <label for="newemailAddressInput">Enter email:</label>
+        <input name="newemailAddressInput" id="newemailAddressInput" type="email" placeholder="Enter updated stevens email address">    
+    </div>
+    <div class="error" id="no-email" hidden>Please provide an email</div>
+    </br>
+    <div>
+        <label for="newpasswordInput">Enter password:</label>
+        <input name="newpasswordInput" id="newpasswordInput" type="password" placeholder="Enter updated password">
+    </div>
+    <div class="error" id="no-pass" hidden>Please provide a password</div>
+    </br>
+    <div>
+        <label for="newconfirmPasswordInput">Confirm password:</label>
+        <input name="newconfirmPasswordInput" id="newconfirmPasswordInput" type="password" placeholder="Enter updated password">
+    </div>
+    <div class="error" id="no-pass-confirm" hidden>Please confirm password</div>
+    </br>
+    <div>
+        <label for="newroleInput"></label>
+        <select name="newroleInput" id="newroleInput">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
+    <div class="error" id="no-role" hidden>Please select role</div>
+    </br>
+    <button class="submit" type="submit">Update</button>
+    </br>
+</form>
+</br>
+</br>
+<a class="Goback" href="/login" style="position:absolute; bottom:1cm">Goback</a>
