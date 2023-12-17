@@ -1,6 +1,6 @@
 //import express, express router as shown in lecture code
 
-import { createEvent, createUser, getallevents, updateUser, getUserById, getallusers, getEventByDetails, eventRegistration, creditsTransfer  } from "../data/users.js";
+import { createEvent, createUser, getallevents, updateUser, getUserById, getallusers, getEventByDetails, eventRegistration, creditsTransfer, deleteEvent  } from "../data/users.js";
 import { checkUser } from "../data/users.js";
 import validation from '../helpers.js';
 
@@ -758,7 +758,25 @@ router
     }
   });
     
+  router.route('/deleteEvent').get(async (req,res) =>{
+    res.render("deleteEvent");
 
+  })
+  router.route('/deleteMeeting')
+  .post(async (req, res) => {
+    try {
+
+      const meetingId = req.body.meetingId;
+      // const organizerId = req.user.id; // Assuming you use authentication middleware
+
+      const result = await deleteEvent(meetingId);
+
+      res.json({ message: result });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error });
+    }
+  });
 
 
 export default router;
