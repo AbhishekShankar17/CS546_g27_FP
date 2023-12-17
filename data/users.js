@@ -561,3 +561,40 @@ export const creditsTransfer = async (senderEmailAddress, receiverEmailAddress, 
   //   return { success: false, message: error.message || 'An error occurred during credit transfer' };
   // }  
 }
+
+
+export const deleteEvent = async (meetingId) => {
+  const eventCollection = await events();
+  const usersCollection = await users();
+
+  try {
+    // Find the event by ID
+    const event = await eventCollection.findOne({ _id: new ObjectId(meetingId) });
+
+    if (!event) {
+      throw 'Meeting not found';
+    }
+
+    // Check if the user is the organizer
+    // if (String(event.organizer) !== organizerId) {
+    //   throw 'Unauthorized';
+    // }
+
+    // Check if the meeting is scheduled in the future (use a specific field for this)
+   
+      // Delete the event
+      await eventCollection.deleteOne({ _id: new ObjectId(meetingId) });
+
+      // Refund credits to the organizer
+      // await usersCollection.updateOne(
+      //   { _id: ObjectId(organizerId) },
+      //   { $inc: { credits: 1 } }
+      // );
+
+      return 'Meeting deleted successfully';
+     
+  } catch (error) {
+    console.error(error);
+    throw 'Internal Server Error';
+  }
+};

@@ -1,6 +1,6 @@
 //import express, express router as shown in lecture code
 
-import { createEvent, createUser, getallevents, updateUser, getUserById, getallusers, getEventByDetails, eventRegistration, creditsTransfer  } from "../data/users.js";
+import { createEvent, createUser, getallevents, updateUser, getUserById, getallusers, getEventByDetails, eventRegistration, creditsTransfer, deleteEvent } from "../data/users.js";
 import { checkUser } from "../data/users.js";
 import validation from '../helpers.js';
 
@@ -294,41 +294,43 @@ router.route("/createEvent")
 
 
 // Delete Meeting
-router.delete('/:id', async (req, res) => {
-  try {
-    const meetingId = req.params.id;
-    const organizerId = req.user.id; // Assuming you use authentication middleware
 
-    const meeting = await Meeting.findById(meetingId);
 
-    if (!meeting) {
-      return res.status(404).json({ error: 'Meeting not found' });
-    }
+// router.delete('/:id', async (req, res) => {
+//   try {
+//     const meetingId = req.params.id;
+//     const organizerId = req.user.id; // Assuming you use authentication middleware
 
-    if (String(meeting.organizer) !== organizerId) {
-      return res.status(403).json({ error: 'Unauthorized' });
-    }
+//     const meeting = await Meeting.findById(meetingId);
 
-    // Check if the meeting is scheduled in the future, you might want to use a specific field for this
-    if (meeting.date > new Date()) {
-      await Meeting.findByIdAndDelete(meetingId);
+//     if (!meeting) {
+//       return res.status(404).json({ error: 'Meeting not found' });
+//     }
 
-      // Refund credits to the organizer
-      const updatedUser = await User.findByIdAndUpdate(
-        organizerId,
-        { $inc: { credits: 1 } }, // Refund 1 credit
-        { new: true }
-      );
+//     if (String(meeting.organizer) !== organizerId) {
+//       return res.status(403).json({ error: 'Unauthorized' });
+//     }
 
-      res.json({ message: 'Meeting deleted successfully', user: updatedUser });
-    } else {
-      res.status(400).json({ error: 'Cannot delete past meetings' });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+//     // Check if the meeting is scheduled in the future, you might want to use a specific field for this
+//     if (meeting.date > new Date()) {
+//       await Meeting.findByIdAndDelete(meetingId);
+
+//       // Refund credits to the organizer
+//       const updatedUser = await User.findByIdAndUpdate(
+//         organizerId,
+//         { $inc: { credits: 1 } }, // Refund 1 credit
+//         { new: true }
+//       );
+
+//       res.json({ message: 'Meeting deleted successfully', user: updatedUser });
+//     } else {
+//       res.status(400).json({ error: 'Cannot delete past meetings' });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
 router.route("/filters").get(async (req, res) => {
   //code here for GET
@@ -779,6 +781,27 @@ router
     }
   });
 
+  router.route('/deleteEvent').get(async (req,res) =>{
+    console.log("Delete event before handlebar")
+    res.render("deleteEvent");
+
+  })
+  router.route('/deleteMeeting')
+  .post(async (req, res) => {
+    try {
+
+      console.log("Delete event after handlebar")
+      const meetingId = req.body.meetingId;
+      // const organizerId = req.user.id; // Assuming you use authentication middleware
+  
+      const result = await deleteEvent(meetingId);
+      
+      res.json({ message: result });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error });
+    }
+  });
 
 
 
