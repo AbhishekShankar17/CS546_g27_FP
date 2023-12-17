@@ -1,6 +1,6 @@
 //import express, express router as shown in lecture code
 
-import { createEvent, createUser, getallevents, updateUser, getUserById, getallusers  } from "../data/users.js";
+import { createEvent, createUser, getallevents, updateUser, getUserById, getallusers, getEventByName,updateEventReview ,getReviewByUserAndEvent, getReviewByUser, getAllReviewsByUser, getAllEventsByOrganizerId, getAllReviewsByEventId } from "../data/users.js";
 import { checkUser } from "../data/users.js";
 import validation from '../helpers.js';
 
@@ -216,12 +216,64 @@ router.route("/protected").get(async (req, res) => {
   }
 });
 
+// router.route("/admin").get(async (req, res) => {
+//   //code here for GET
+//   let today = new Date();
+//   let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+//   res.render("admin",{firstName: req.session.user.firstName, currentTime:time, admin:true});
+// });
+
 router.route("/admin").get(async (req, res) => {
-  //code here for GET
-  let today = new Date();
-  let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-  res.render("admin",{firstName: req.session.user.firstName, currentTime:time, admin:true});
+  try {
+    if (req.session.user && req.session.user.role === "admin") {
+      let today = new Date();
+      let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+
+      const organizerId = req.session.user._id;
+
+      if (!organizerId) {
+        console.error("OrganizerId is missing in the user session:", req.session.user);
+        throw "OrganizerId must be provided!!!";
+      }
+
+      const allevents = await getAllEventsByOrganizerId(organizerId);
+
+      const eventReviewsPromises = allevents.map(async (eachevent) => {
+        const eventId = eachevent._id;
+
+        const reviews = await getAllReviewsByEventId(eventId);
+
+        return { event: eachevent, reviews };
+      });
+
+      const eventReviews = await Promise.all(eventReviewsPromises);
+
+      // Extract all user reviews from all events
+      const userReviews = eventReviews.flatMap(eventReview => eventReview.reviews);
+
+      res.render("admin", {
+        firstName: req.session.user.firstName,
+        lastName: req.session.user.lastName,
+        emailAddress: req.session.user.emailAddress,
+        role: req.session.user.role,
+        credits: req.session.user.credits,
+        currentTime: time,
+        admin: true,
+        eventReviews: eventReviews,
+        userReview: userReviews
+      });
+    } else {
+      res.redirect("/login");
+    }
+  } catch (error) {
+    console.error("Error in /admin route:", error);
+    res.status(500).render('error', { error: `${error}` });
+  }
 });
+
+
+
+
 
 router.route("/error").get(async (req, res) => {
   //code here for GET
@@ -467,11 +519,10 @@ router.route("/filters").get(async (req, res) => {
 router
   .route("/edituser")
   .get(async (req, res) => {
-    //code here for GET
+    // Code here for GET
     res.render("edituser");
   })
   .post(async (req, res) => {
-    //code here for POST
     try {
       let newfirstNameInput;
       let newlastNameInput;
@@ -479,14 +530,14 @@ router
       let newpasswordInput;
       let newconfirmPasswordInput;
       let newroleInput;
-      
-      if(req.body){
-        newfirstNameInput= req.body.newfirstNameInput;
-        newlastNameInput= req.body.newlastNameInput;
-        newemailAddressInput= req.body.newemailAddressInput;
-        newpasswordInput= req.body.newpasswordInput;
-        newconfirmPasswordInput= req.body.newconfirmPasswordInput;
-        newroleInput= req.body.newroleInput;
+
+      if (req.body) {
+        newfirstNameInput = req.body.newfirstNameInput;
+        newlastNameInput = req.body.newlastNameInput;
+        newemailAddressInput = req.body.newemailAddressInput;
+        newpasswordInput = req.body.newpasswordInput;
+        newconfirmPasswordInput = req.body.newconfirmPasswordInput;
+        newroleInput = req.body.newroleInput;
       }
 
       if (
@@ -499,106 +550,324 @@ router
       ) {
         throw "Error: Must provide all fields";
       }
-      newfirstNameInput = validation.checkString(
-        newfirstNameInput,
-        "First name"
-      );
+
+      newfirstNameInput = validation.checkString(newfirstNameInput, "First name");
       if (newfirstNameInput.length < 2 || newfirstNameInput.length > 25) {
         throw "Error: Invalid first name length";
       }
-      newlastNameInput = validation.checkString(
-        newlastNameInput,
-        "Last name"
-      );
+
+      newlastNameInput = validation.checkString(newlastNameInput, "Last name");
       if (newlastNameInput.length < 2 || newlastNameInput.length > 25) {
-        throw "Error: Invalid new last name length";
-      }
-      newemailAddressInput = newemailAddressInput.toLowerCase();
-      if (
-        !/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@stevens\.edu$/.test(
-          newemailAddressInput
-        )
-      ) {
-        throw "Error: new Email address must end with stevens.edu";
+        throw "Error: Invalid last name length";
       }
 
-      newpasswordInput = validation.checkString(
-        newpasswordInput,
-        "Password"
-      );
+      newemailAddressInput = newemailAddressInput.toLowerCase();
+      if (!/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@stevens\.edu$/.test(newemailAddressInput)) {
+        throw "Error: Email address must end with stevens.edu";
+      }
+
+      newpasswordInput = validation.checkString(newpasswordInput, "Password");
       if (/^(.{0,7}|[^0-9]*|[^A-Z]*|[a-zA-Z0-9]*)$/.test(newpasswordInput)) {
-        throw "Error: Invalid new Passwords";
+        throw "Error: Invalid Password";
       }
       if (newpasswordInput.match(/\s/g)) {
-        throw "Error: Invalid new Passwords";
+        throw "Error: Password cannot contain spaces";
       }
       if (newconfirmPasswordInput !== newpasswordInput) {
-        throw "Error: new Passwords do not match";
+        throw "Error: Passwords do not match";
       }
+
       newroleInput = validation.checkString(newroleInput, "Role");
       if (!/^(admin|user)$/.test(newroleInput)) {
-        throw "Error: Invalid new role";
+        throw "Error: Invalid role";
       }
-    } catch (e) {
-      return res.status(400).render("edituser", { error: `${e}`});
-    }
-    // try {
 
-    //    await updateUser(
-    //     req.body.newfirstNameInput,
-    //     req.body.newlastNameInput,
-    //     req.body.newemailAddressInput,
-    //     req.body.newpasswordInput,
-    //     req.body.newroleInput
-    //   );
+      // Update user details
+      await updateUser(
+        newfirstNameInput,
+        newlastNameInput,
+        newemailAddressInput,
+        newpasswordInput,
+        newroleInput
+      );
 
-    //   res.redirect("/login");
-    // } catch (e) {
-    //   res.status(400).render("edituser", { error: `${e}`}
-    //   );
-    // }
+      // Update session variables
+      req.session.user.firstName = newfirstNameInput;
+      req.session.user.lastName = newlastNameInput;
+      req.session.user.emailAddress = newemailAddressInput;
+      req.session.user.password = newpasswordInput;
+      req.session.user.role = newroleInput;
 
-    try {
-      req.session.user.firstName = req.body.newfirstNameInput;
-      req.session.user.lastName = req.body.newlastNameInput;
-      req.session.user.emailAddress = req.body.newemailAddressInput;
-      req.session.user.role = req.body.newroleInput;
-
+      // Redirect to login page after successful update
       res.redirect("/login");
-    } catch (e) {
-      res.status(400).render("edituser", { error: `${e}` });
+    } catch (error) {
+      res.status(400).render("edituser", { error: `${error}` });
     }
-    
   });
 
-  router.route("/viewuser").get(async (req, res) => {
-    //code here for GET
-    let admin = false;
+
+  // router.route("/viewuser").get(async (req, res) => {
+  //   //code here for GET
+  //   let admin = false;
+  // const userReview = await getReviewByUser(req.session.user.userId);
     
-    if(req.session.user){
-    try{
-      if (req.session.user.role === "admin") {
-        admin = true;
+  //   if(req.session.user){
+  //   try{
+  //     if (req.session.user.role === "admin") {
+  //       admin = true;
+  //       res.render("viewuser", {
+  //         firstName: req.session.user.firstName,
+  //         lastName: req.session.user.lastName,
+  //         emailAddress: req.session.user.emailAddress,
+  //         role: req.session.user.role,
+  //         credits: req.session.user.credits,
+  //            userReview,
+  //     });
+  //   }
+  //   }catch(e){
+  //     return res.status(500).render('error', {error:`${e}`});
+  //   }
+    
+  //   res.render("viewuser", {
+  //     firstName: req.session.user.firstName,
+  //     lastName: req.session.user.lastName,
+  //     emailAddress: req.session.user.emailAddress,
+  //     role: req.session.user.role,
+  //     credits: req.session.user.credits,
+  //        userReview,
+  //   });
+  //   }
+  // });
+
+  // router.route("/viewuser").get(async (req, res) => {
+  //   try {
+  //     let admin = false;
+  //     let userReview;
+  
+  //     // Check if the user is logged in
+  //     if (req.session.user && req.session.user.userId) {
+  //       // Fetch user's review if user is logged in
+  //       userReview = await getReviewByUser(req.session.user.userId);
+  
+  //       try {
+  //         if (req.session.user.role === "admin") {
+  //           admin = true;
+  //           res.render("viewuser", {
+  //             firstName: req.session.user.firstName,
+  //             lastName: req.session.user.lastName,
+  //             emailAddress: req.session.user.emailAddress,
+  //             role: req.session.user.role,
+  //             credits: req.session.user.credits,
+  //             userReview,
+  //           });
+  //         }
+  //       } catch (e) {
+  //         return res.status(500).render('error', { error: `${e}` });
+  //       }
+  
+  //       // Render viewuser page for non-admin users
+  //       res.render("viewuser", {
+  //         firstName: req.session.user.firstName,
+  //         lastName: req.session.user.lastName,
+  //         emailAddress: req.session.user.emailAddress,
+  //         role: req.session.user.role,
+  //         credits: req.session.user.credits,
+  //         userReview,
+  //       });
+  //     } else {
+  //       // Handle case where user is not logged in
+  //       res.redirect("/login");
+  //     }
+  //   } catch (error) {
+  //     // Handle the error thrown by getReviewByUser
+  //     res.status(500).render('error', { error: `${error}` });
+  //   }
+  // });
+  
+  
+  
+  
+
+
+
+  // router
+  // .route('/userreviews')
+  // .get(async (req, res) => {
+  //   try {
+  //     res.render('userreviews', {
+  //       firstName: req.session.user.firstName,
+  //       lastName: req.session.user.lastName
+  //     });
+  //   } catch (error) {
+  //     res.status(500).render('error', { error: 'Internal Server Error' });
+  //   }
+  // })
+  // .post(async (req, res) => {
+  //   try {
+  //     const { eventName, location, date, time, rating, comments } = req.body;
+
+  //     if (!eventName || !location || !date || !time || !rating || !comments) {
+  //       throw 'Error: Must provide all fields';
+  //     }
+
+      
+  //     const result = await updateEventReview(eventName, location, date, time, rating, comments);
+
+  //     if (result.success) {
+        
+  //       res.redirect('/viewuser');
+  //     } else {
+        
+  //       throw result.error;
+  //     }
+  //   } catch (error) {
+  //     res.status(400).render('userreviews', { error: `${error}` });
+  //   }
+  // });
+
+  // router
+  // .route('/userreviews')
+  // .get(async (req, res) => {
+  //   try {
+  //     res.render('userreviews', {
+  //       firstName: req.session.user.firstName,
+  //       lastName: req.session.user.lastName
+  //     });
+  //   } catch (error) {
+  //     res.status(500).render('error', { error: 'Internal Server Error' });
+  //   }
+  // })
+  // .post(async (req, res) => {
+  //   try {
+  //     const { eventName, location, date, time, rating, comments } = req.body;
+
+  //     if (!eventName || !location || !date || !time || !rating || !comments) {
+  //       throw 'Error: Must provide all fields';
+  //     }
+
+  //     const userId = req.session.user.userId; // Assuming userId is available in the session
+
+  //     // Check if the user has already submitted a review for the specified event
+  //     const existingReview = await getReviewByUserAndEvent(userId, eventName, location, date, time);
+
+  //     if (existingReview) {
+  //       throw "You have already submitted a review for this event. You can edit your existing review on the 'View User' page.";
+  //     }
+
+  //     const result = await updateEventReview(userId, eventName, location, date, time, rating, comments);
+
+  //     if (result.success) {
+  //       res.redirect('/viewuser');
+  //     } else {
+  //       throw result.error;
+  //     }
+  //   } catch (error) {
+  //     res.status(400).render('userreviews', { error: `${error}` });
+  //   }
+  // });
+
+
+  router
+  .route('/userreviews')
+  .get(async (req, res) => {
+    try {
+      res.render('userreviews', {
+        firstName: req.session.user.firstName,
+        lastName: req.session.user.lastName,
+      });
+    } catch (error) {
+      res.status(500).render('error', { error: 'Internal Server Error' });
+    }
+  })
+  .post(async (req, res) => {
+    try {
+      const { eventName, location, date, time, rating, comments } = req.body;
+
+      if (!eventName || !location || !date || !time || !rating || !comments) {
+        throw 'Error: Must provide all fields';
+      }
+
+      const emailAddress = req.session.user.emailAddress;
+
+      // Check if the event exists
+      const event = await getEventByName(eventName);
+
+      if (!event) {
+        throw "Error: Event not found";
+      }
+
+      // Check if the user has already submitted a review for the specified event
+      const existingReview = await getReviewByUserAndEvent(emailAddress, eventName, location, date, time);
+
+      if (existingReview) {
+        throw "You have already submitted a review for this event. You can edit your existing review on the 'View User' page.";
+      }
+
+      // Add the review to the event
+      const result = await updateEventReview(emailAddress, eventName, location, date, time, rating, comments);
+
+      if (result.success) {
+        res.redirect('/viewuser');
+      } else {
+        throw result.error;
+      }
+    } catch (error) {
+      res.status(400).render('userreviews', { error: `${error}` });
+    }
+  });
+
+
+
+
+router.route("/viewuser").get(async (req, res) => {
+    try {
+      let admin = false;
+      // let userReview;
+  
+      // Check if the user is logged in
+      if (req.session.user && req.session.user.emailAddress) {
+        // Fetch user's review if user is logged in
+        const userReview = await getAllReviewsByUser(req.session.user.emailAddress);
+        console.log(userReview);
+  
+        try {
+          if (req.session.user.role === "admin") {
+            admin = true;
+            res.render("viewuser", {
+              firstName: req.session.user.firstName,
+              lastName: req.session.user.lastName,
+              emailAddress: req.session.user.emailAddress,
+              role: req.session.user.role,
+              credits: req.session.user.credits,
+              userReview,
+            });
+          }
+        } catch (e) {
+          return res.status(500).render('error', { error: `${e}` });
+        }
+  
+        // Render viewuser page for non-admin users
         res.render("viewuser", {
           firstName: req.session.user.firstName,
           lastName: req.session.user.lastName,
           emailAddress: req.session.user.emailAddress,
           role: req.session.user.role,
           credits: req.session.user.credits,
-      });
-    }
-    }catch(e){
-      return res.status(500).render('error', {error:`${e}`});
-    }
-    
-    res.render("viewuser", {
-      firstName: req.session.user.firstName,
-      lastName: req.session.user.lastName,
-      emailAddress: req.session.user.emailAddress,
-      role: req.session.user.role,
-      credits: req.session.user.credits,
-    });
+          userReview,
+        });
+      } else {
+        // Handle case where user is not logged in
+        res.redirect("/login");
+      }
+    } catch (error) {
+      // Handle the error thrown by getReviewByUser
+      res.status(500).render('error', { error: `${error}` });
     }
   });
 
+
+
+
+
+  
 export default router;

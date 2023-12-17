@@ -160,6 +160,13 @@ export const createEvent = async (
     throw 'Error: Must provide all fields';
   }
 
+  organizerName = organizerName.toLowerCase();
+  //eventName = eventName.toLowerCase();
+  location = location.toLowerCase();
+
+  
+  
+
   const eventCollection = await events();
   const usersCollection = await users();
 
@@ -176,7 +183,7 @@ export const createEvent = async (
     duration: duration,
     location: location,
     time: time,
-    eventName: eventName,
+    eventName: eventName.toLowerCase(),
   };
 
   const insertInfo = await eventCollection.insertOne(newEvent);
@@ -200,9 +207,6 @@ export const createEvent = async (
 
 
 
-
-
-
 export const getallevents = async (
   ) => {
     const eventsCollection = await events();
@@ -210,6 +214,30 @@ export const getallevents = async (
     //console.log(eventsList);
     return eventsList;
   };
+
+
+
+  export const getEventByName = async (eventName) => {
+    if (!eventName) {
+      throw "Must provide eventName!!";
+    }
+  
+    if (typeof eventName !== 'string' || eventName.trim().length === 0) {
+      throw "eventName must be a non-empty string!!";
+    }
+
+    eventName = eventName.toLowerCase();
+  
+    const eventCollection = await events();
+    const event = await eventCollection.findOne({ eventName });
+  
+    if (!event) {
+      throw `Event with name '${eventName}' not found`;
+    }
+  
+    return event;
+  };
+  
 
   export const getallusers = async (
     ) => {
@@ -313,4 +341,430 @@ export const getallevents = async (
 // } catch (e) {
 //   console.log(e); 
 // }
+
+// export const updateEventReview = async (eventName, location, date, time, rating, comments) => {
+//   try {
+//     if (!eventName || !location || !date || !time) {
+//       throw "These fields cannot be empty!!!";
+//     }
+
+//     if (typeof eventName !== 'string' || eventName.trim().length === 0) {
+//       throw "eventName has to be a non-empty string!!!";
+//     }
+
+//     if (typeof location !== 'string' || location.trim().length === 0) {
+//       throw "location cannot be an empty string!!!";
+//     }
+
+//     // Extract the numeric part from the rating input (e.g., "4 - Very Good" -> 4)
+//     const ratingNumber = parseInt(rating, 10);
+
+//     // Check if the extracted rating is a valid number between 1 and 5
+//     if (isNaN(ratingNumber) || ratingNumber < 1 || ratingNumber > 5) {
+//       throw "Invalid rating. Must be a number between 1 and 5.";
+//     }
+
+//     if (typeof comments !== 'string') {
+//       throw "Comments must be a string.";
+//     }
+
+//     const eventCollection = await events();
+    
+//     await eventCollection.updateOne(
+//       { eventName, location, date, time },
+//       { $push: { reviews: { rating: ratingNumber, comments } } }
+//     );
+
+//     return { success: true };
+//   } catch (error) {
+//     return { success: false, error: error.message };
+//   }
+// };
+
+
+
+
+// export const getReviewByUserAndEvent = async (userId, eventName, location, date, time) => {
+//   try {
+//     if (!userId || !eventName || !location || !date || !time) {
+//       throw "Must provide userId, eventName, location, date, and time!!";
+//     }
+
+//     if (typeof userId !== 'string' || userId.trim().length === 0) {
+//       throw "userId must be a non-empty string!!";
+//     }
+
+//     if (typeof eventName !== 'string' || eventName.trim().length === 0) {
+//       throw "eventName must be a non-empty string!!";
+//     }
+
+//     if (typeof location !== 'string' || location.trim().length === 0) {
+//       throw "location must be a non-empty string!!";
+//     }
+
+//     if (typeof date !== 'string' || date.trim().length === 0) {
+//       throw "date must be a non-empty string!!";
+//     }
+
+//     if (typeof time !== 'string' || time.trim().length === 0) {
+//       throw "time must be a non-empty string!!";
+//     }
+
+//     const event = await getEventByName(eventName);
+
+//     const review = event.reviews.find(
+//       (review) =>
+//         review.userId === userId &&
+//         review.location === location &&
+//         review.date === date &&
+//         review.time === time
+//     );
+
+//     return review;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
+
+// export const getReviewByUser = async (userId) => {
+
+//   if(!userId){
+//     throw "Need to provide userID!!!";
+//   }
+
+//   if (typeof id !== 'string'){
+//     throw "userId should be a string!!";
+//   }
+
+//   userId = userId.trim();
+//   if (userId.length === 0){
+//     throw "userId cannot be empty string!!";
+//   }
+
+//   if (!ObjectId.isValid(userId)){
+//     throw "Not a valid ID!!";
+//   }
+//   const eventCollection = await events();
+  
+//   const reviews = await eventCollection
+//     .find({ "reviews.userId": userId })
+//     .project({ _id: 0, reviews: { $elemMatch: { userId: userId } } })
+//     .toArray();
+
+//   if (reviews.length > 0) {
+//     return reviews[0].reviews; 
+//   } else {
+//     return []; 
+//   }
+// };
+
+// export const updateEventReview = async (emailAddress, eventName, location, date, time, rating, comments) => {
+//   try {
+//     if (!emailAddress || !eventName || !location || !date || !time) {
+//       throw "These fields cannot be empty!!!";
+//     }
+
+//     // Assuming emailAddress is a non-empty string
+//     if (typeof emailAddress !== 'string' || emailAddress.trim().length === 0) {
+//       throw "emailAddress has to be a non-empty string!!!";
+//     }
+
+//     const ratingNumber = parseInt(rating, 10);
+
+//     if (isNaN(ratingNumber) || ratingNumber < 1 || ratingNumber > 5) {
+//       throw "Invalid rating. Must be a number between 1 and 5.";
+//     }
+
+//     if (typeof comments !== 'string') {
+//       throw "Comments must be a string.";
+//     }
+
+//     const eventCollection = await events();
+
+//     // Check if the user has already submitted a review for the specified event
+//     const existingReview = await getReviewByUserAndEvent(emailAddress, eventName, location, date, time);
+
+//     if (existingReview) {
+//       throw `Review already provided for ${eventName} on ${date} at ${time}. You can edit your existing review on the 'View User' page.`;
+//     }
+
+//     await eventCollection.updateOne(
+//       { eventName, location, date, time },
+//       { $push: { reviews: { emailAddress, rating: ratingNumber, comments } } }
+//     );
+
+//     console.log("Review added successfully:", { emailAddress, eventName, location, date, time, rating, comments });
+
+//     return { success: true };
+//   } catch (error) {
+//     console.error("Error adding review:", error);
+//     return { success: false, error: error.message };
+//   }
+// };
+
+export const updateEventReview = async (emailAddress, eventName, location, date, time, rating, comments) => {
+  try {
+    if (!emailAddress || !eventName || !location || !date || !time) {
+      throw "These fields cannot be empty!!!";
+    }
+
+    // Assuming emailAddress is a non-empty string
+    if (typeof emailAddress !== 'string' || emailAddress.trim().length === 0) {
+      throw "emailAddress has to be a non-empty string!!!";
+    }
+    emailAddress = emailAddress.toLowerCase();
+    eventName = eventName.toLowerCase();
+    location = location.toLowerCase();
+
+
+
+    const ratingNumber = parseInt(rating, 10);
+
+    if (isNaN(ratingNumber) || ratingNumber < 1 || ratingNumber > 5) {
+      throw "Invalid rating. Must be a number between 1 and 5.";
+    }
+
+    if (typeof comments !== 'string') {
+      throw "Comments must be a string.";
+    }
+
+    // Check if the user has already provided a review for the same event
+    const existingReview = await getReviewByUserAndEvent(emailAddress, eventName, location, date, time);
+
+    if (existingReview) {
+      throw `Review already provided for ${eventName} on ${date} at ${time}. You can edit your existing review on the 'View Profile' page.`;
+    }
+
+    // If no existing review, proceed to add the new review
+    const eventCollection = await events();
+
+    await eventCollection.updateOne(
+      { eventName, location, date, time },
+      { $push: { reviews: { emailAddress, rating: ratingNumber, comments } } }
+    );
+
+    console.log("Review added successfully:", { emailAddress, eventName, location, date, time, rating, comments });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error adding review:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+
+
+
+// export const getReviewByUserAndEvent = async (emailAddress, eventName, location, date, time) => {
+//   try {
+//     if (!emailAddress || !eventName) {
+//       throw "Must provide emailAddress and eventName!!";
+//     }
+
+//     // Assuming emailAddress and eventName are non-empty strings
+//     if (typeof emailAddress !== 'string' || emailAddress.trim().length === 0 || typeof eventName !== 'string' || eventName.trim().length === 0) {
+//       throw "emailAddress and eventName must be non-empty strings!!";
+//     }
+
+//     const event = await getEventByName(eventName);
+
+//     if (!event) {
+//       throw "Event not found for the specified event name.";
+//     }
+
+//     if (!event.reviews || !Array.isArray(event.reviews)) {
+//       return null;
+//     }
+
+//     const matchingReviews = event.reviews.filter(
+//       (review) =>
+//         review.emailAddress === emailAddress &&
+//         (!location || review.location === location) &&
+//         (!date || review.date === date) &&
+//         (!time || review.time === time)
+//     );
+    
+//     if (!matchingReviews.length) {
+//       // Instead of throwing an error, return null:
+//       return null;
+//     }
+
+//     // Assuming you want to return only the first matching review
+//     return matchingReviews[0];
+//   } catch (error) {
+//     console.error("Error in getReviewByUserAndEvent:", error);
+//     throw error;
+//   }
+// };
+
+export const getReviewByUserAndEvent = async (emailAddress, eventName, location, date, time) => {
+  try {
+    if (!emailAddress || !eventName) {
+      throw "Must provide emailAddress and eventName!!";
+    }
+
+    // Assuming emailAddress and eventName are non-empty strings
+    if (typeof emailAddress !== 'string' || emailAddress.trim().length === 0 || typeof eventName !== 'string' || eventName.trim().length === 0) {
+      throw "emailAddress and eventName must be non-empty strings!!";
+    }
+    emailAddress = emailAddress.toLowerCase();
+    eventName = eventName.toLowerCase();
+
+
+    // Use await to ensure that the promise returned by getEventByName is resolved
+    const event = await getEventByName(eventName);
+    //console.log(event);
+
+    if (!event) {
+      throw "Event not found for the specified event name.";
+    }
+
+    if (!event.reviews || !Array.isArray(event.reviews)) {
+      // No reviews found for the event
+      return null;
+    }
+    console.log(event.reviews);
+
+    // Check if a review already exists for the specified user and event
+    const matchingReview = event.reviews.find(
+      (review) =>
+        review.emailAddress === emailAddress
+        // (!location || review.location === location) 
+        // (!date || review.date === date) &&
+        // (!time || review.time === time)
+    );
+
+    return matchingReview;
+  } catch (error) {
+    console.error("Error in getReviewByUserAndEvent:", error);
+    throw error;
+  }
+};
+
+
+
+export const getReviewByUser = async (emailAddress) => {
+  if (!emailAddress) {
+    throw "Need to provide emailAddress!!!";
+  }
+
+  if (typeof emailAddress !== 'string') {
+    throw "emailAddress should be a string!!";
+  }
+
+  emailAddress = emailAddress.trim();
+  emailAddress = emailAddress.toLowerCase();
+  if (emailAddress.length === 0) {
+    throw "emailAddress cannot be an empty string!!";
+  }
+
+  const eventCollection = await events();
+
+  const reviews = await eventCollection
+    .find({ "reviews.emailAddress": emailAddress })
+    .project({ _id: 0, reviews: { $elemMatch: { emailAddress: emailAddress } } })
+    .toArray();
+
+  if (reviews.length > 0) {
+    return reviews[0].reviews;
+  } else {
+    return [];
+  }
+};
+
+export const getAllReviewsByUser = async (emailAddress) => {
+  if (!emailAddress) {
+    throw "Need to provide emailAddress!!!";
+  }
+
+  if (typeof emailAddress !== 'string') {
+    throw "emailAddress should be a string!!";
+  }
+
+  emailAddress = emailAddress.trim();
+  emailAddress = emailAddress.toLowerCase();
+  if (emailAddress.length === 0) {
+    throw "emailAddress cannot be an empty string!!";
+  }
+
+  const eventCollection = await events();
+
+  const reviews = await eventCollection
+    .find({ "reviews.emailAddress": emailAddress })
+    .project({ _id: 0, "eventName": 1, "reviews.rating": 1, "reviews.comments": 1 })
+    .toArray();
+
+  if (reviews.length > 0) {
+    // Flatten the array of reviews and set the correct eventName
+    const flattenedReviews = reviews.flatMap(review => {
+      const eventName = review.eventName;
+      return review.reviews.map(r => ({ eventName, ...r }));
+    });
+    return flattenedReviews;
+  } else {
+    return [];
+  }
+};
+
+// export const getAllReviewsByEventId = async(eventId) => {
+//   if(!eventId){
+//     throw "EventId needs to be provided!!!";
+//   }
+// }
+
+
+// export const getAllEventsByOrganizerId = async(organizerId) => {
+//   if(!organizerId){
+//     throw "organizerId must be provided!!!";
+//   }
+// }
+ 
+
+export const getAllReviewsByEventId = async (eventId) => {
+  if (!eventId) {
+    throw "EventId needs to be provided!!!";
+  }
+
+  try {
+    const eventCollection = await events(); 
+
+    const reviews = await eventCollection
+      .find({ _id: eventId }, { projection: { _id: 0, reviews: 1 } })
+      .toArray();
+
+    if (reviews.length > 0) {
+      return reviews[0].reviews;
+    } else {
+      return [];
+    }
+  } catch (error) {
+    throw `Error fetching reviews: ${error}`;
+  }
+};
+
+
+
+export const getAllEventsByOrganizerId = async (organizerId) => {
+  if (!organizerId) {
+    throw "organizerId must be provided!!!";
+  }
+
+  console.log(organizerId);
+
+  try {
+    const eventCollection = await events();
+
+    const allevents = await eventCollection
+      .find({ organizer: new ObjectId(organizerId) }, { projection: { _id: 1, eventName: 1 } })
+      .toArray();
+
+    return allevents;
+  } catch (error) {
+    throw `Error fetching allevents: ${error}`;
+  }
+};
+
+
+
+
 
