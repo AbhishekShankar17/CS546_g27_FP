@@ -1,5 +1,5 @@
 {
-  "name": "lab10_stub",
+  "name": "Meetsmart",
   "version": "1.0.0",
   "description": "CS-546-lab-10",
   "main": "app.js",
@@ -8,7 +8,7 @@
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Rishab Shirur 20016354",
+  "author": "CS546_G27_FP",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
