@@ -1,6 +1,5 @@
-//You can add and export any helper functions you want here. If you aren't using any, then you can just leave this file as is.
 // You can add and export any helper functions you want here - if you aren't using any, then you can just leave this file as is
-import {ObjectId} from 'mongodb';
+import { ObjectId } from 'mongodb';
 
 const exportedMethods = {
   checkId(id, varName) {
@@ -25,8 +24,8 @@ const exportedMethods = {
   },
 
   checkStringArray(arr, varName) {
-    //We will allow an empty array for this,
-    //if it's not empty, we will make sure all tags are strings
+    // We will allow an empty array for this,
+    // if it's not empty, we will make sure all tags are strings
     if (!arr || !Array.isArray(arr))
       throw `You must provide an array of ${varName}`;
     for (let i in arr) {
@@ -37,7 +36,12 @@ const exportedMethods = {
     }
 
     return arr;
-  }
+  },
+
+  formatDateForDatabase(inputDate) {
+    const [month, day, year] = inputDate.split('/');
+    return `${year}-${month}-${day}`;
+  },
 };
 
 export default exportedMethods;
