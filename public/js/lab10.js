@@ -17,8 +17,6 @@ let newlastNameInput = document.getElementById('newlastNameInput');
 let newconfirmPasswordInput = document.getElementById('newconfirmPasswordInput');
 let newroleInput = document.getElementById('newroleInput');
 
-let FeedbackForm = document.getElementById('feedback-form');
-
 let loginEmailError = document.getElementById('no-email');
 let loginPasswordError = document.getElementById('no-pass');
 let regPassConfirmError = document.getElementById('no-pass-confirm');
@@ -161,119 +159,5 @@ if(edituserForm){
             regRoleError.hidden = false;
         }
     })
-}
-
-
-
-if(FeedbackForm){
-    edituserForm.addEventListener('submit',(event)=>{
-        event.preventDefault();
-        if(newemailAddressInput && newpasswordInput && newfirstNameInput && newlastNameInput && newconfirmPasswordInput && newroleInput){
-            loginEmailError.hidden = true;
-            loginPasswordError.hidden = true;
-            regPassConfirmError.hidden = true;
-            regFnameError.hidden = true;
-            regLnameError.hidden = true;
-            regRoleError.hidden = true;
-
-            edituserForm.submit();
-        }else if(!newfirstNameInput){
-            loginEmailError.hidden = true;
-            loginPasswordError.hidden = true;
-            regPassConfirmError.hidden = true;
-            regFnameError.hidden = false;
-            regLnameError.hidden = true;
-            regRoleError.hidden = true;
-        }else if(!newlastNameInput){
-            loginEmailError.hidden = true;
-            loginPasswordError.hidden = true;
-            regPassConfirmError.hidden = true;
-            regFnameError.hidden = true;
-            regLnameError.hidden = false;
-            regRoleError.hidden = true;   
-        }else if(!newemailAddressInput){
-            loginEmailError.hidden = false;
-            loginPasswordError.hidden = true;
-            regPassConfirmError.hidden = true;
-            regFnameError.hidden = true;
-            regLnameError.hidden = true;
-            regRoleError.hidden = true;   
-        }else if(!newpasswordInput){
-            loginEmailError.hidden = true;
-            loginPasswordError.hidden = false;
-            regPassConfirmError.hidden = true;
-            regFnameError.hidden = true;
-            regLnameError.hidden = true;
-            regRoleError.hidden = true;   
-        }else if(!newconfirmPasswordInput){
-            loginEmailError.hidden = true;
-            loginPasswordError.hidden = true;
-            regPassConfirmError.hidden = false;
-            regFnameError.hidden = true;
-            regLnameError.hidden = true;
-            regRoleError.hidden = true;   
-        }else{
-            loginEmailError.hidden = true;
-            loginPasswordError.hidden = true;
-            regPassConfirmError.hidden = true;
-            regFnameError.hidden = true;
-            regLnameError.hidden = true;
-            regRoleError.hidden = false;
-        }
-    })
-}
-
-
-const eventNameInput = document.getElementById('eventName');
-const locationInput = document.getElementById('location');
-const dateInput = document.getElementById('date');
-const timeInput = document.getElementById('time');
-const ratingInput = document.getElementById('rating');
-const commentsInput = document.getElementById('comments');
-
-const eventNameError = document.getElementById('no-eventName');
-const locationError = document.getElementById('no-location');
-const dateError = document.getElementById('no-date');
-const ratingError = document.getElementById('no-rating');
-const commentsError = document.getElementById('no-comments');
-
-if (FeedbackForm) {
-  FeedbackForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    // Reset all error messages
-    eventNameError.hidden = true;
-    locationError.hidden = true;
-    dateError.hidden = true;
-    ratingError.hidden = true;
-    commentsError.hidden = true;
-
-    if (
-      eventNameInput.value &&
-      locationInput.value &&
-      dateInput.value &&
-      timeInput.value &&
-      ratingInput.value &&
-      commentsInput.value
-    ) {
-      FeedbackForm.submit();
-    } else {
-      if (!eventNameInput.value) {
-        eventNameError.hidden = false;
-      }
-      if (!locationInput.value) {
-        locationError.hidden = false;
-      }
-      if (!dateInput.value) {
-        dateError.hidden = false;
-      }
-      if (!ratingInput.value) {
-        ratingError.hidden = false;
-      }
-      if (!commentsInput.value) {
-        commentsError.hidden = false;
-      }
-    }
-  })
 }
 
