@@ -145,6 +145,15 @@ export const createEvent = async (
     minute: '2-digit',
   });
 
+  const currDate = new Date();
+
+  const inpDate = new Date(date)
+
+  if (currDate > inpDate) {
+    // Validation failed, the provided date and time is earlier than today's date and time
+    throw new Error("Date and time cannot be earlier than today's date and time.");
+  }
+
   let newEvent = {
     organizer: new ObjectId(user._id),
     capacity: capacity,
@@ -608,8 +617,10 @@ export const creditsTransfer = async (senderEmailAddress, receiverEmailAddress, 
     );
 
     return { success: true, message: 'Credits transferred successfully' };
+
+
+    
   
-};
 
 // export const updateEventReview = async (eventName, location, date, time, rating, comments) => {
 //   try {
@@ -1035,5 +1046,43 @@ export const getAllEventsByOrganizerId = async (organizerId) => {
 
 
 
+
+
+=======
+export const deleteEvent = async (meetingId) => {
+  const eventCollection = await events();
+  const usersCollection = await users();
+
+  try {
+    // Find the event by ID
+    const event = await eventCollection.findOne({ _id: new ObjectId(meetingId) });
+
+    if (!event) {
+      throw 'Meeting not found';
+    }
+
+    // Check if the user is the organizer
+    // if (String(event.organizer) !== organizerId) {
+    //   throw 'Unauthorized';
+    // }
+
+    // Check if the meeting is scheduled in the future (use a specific field for this)
+
+      // Delete the event
+      await eventCollection.deleteOne({ _id: new ObjectId(meetingId) });
+
+      // Refund credits to the organizer
+      // await usersCollection.updateOne(
+      //   { _id: ObjectId(organizerId) },
+      //   { $inc: { credits: 1 } }
+      // );
+
+      return 'Meeting deleted successfully';
+
+  } catch (error) {
+    console.error(error);
+    throw 'Internal Server Error';
+  }
+};
 
 
