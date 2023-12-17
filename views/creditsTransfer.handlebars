@@ -1,0 +1,48 @@
+<h1>Credits Transfer</h1>
+</br>
+<form class="transfer-form" action="/creditsTransfer" id="transfer-credits-form" method="post">
+    <div>
+        <label for="senderEmailAddress">Sender's Email Address:</label>
+        <input name="senderEmailAddress" id="senderEmailAddress" type="text" placeholder="Enter sender's email Address">
+        <div class="error" id="no-receiver-last-name" hidden>Please provide sender's email Address</div>
+    </div>
+    {{!-- </br>
+    <div>
+        <label for="receiverFirstName">Receiver's First Name:</label>
+        <input name="receiverFirstName" id="receiverFirstName" type="text" placeholder="Enter receiver's first name">
+        <div class="error" id="no-sender" hidden>Please provide receiver's first name</div>
+    </div>
+    </br>
+    <div>
+        <label for="receiverLastName">Receiver's Last Name:</label>
+        <input name="receiverLastName" id="receiverLastName" type="text" placeholder="Enter receiver's last name">
+        <div class="error" id="no-receiver-first-name" hidden>Please provide receiver's last name</div>
+    </div> --}}
+    </br>
+    <div>
+        <label for="receiverEmailAddress">Receiver's Email Address:</label>
+        <input name="receiverEmailAddress" id="receiverEmailAddress" type="text" placeholder="Enter receiver's email Address">
+        <div class="error" id="no-receiver-email-address" hidden>Please provide receiver's email Address</div>
+    </div>
+    </br>
+    <div>
+        <label for="numberOfCredits">Transfer Value:</label>
+        <input name="numberOfCredits" id="numberOfCredits" type="number" placeholder="Enter number of credits to transfer">
+        <div class="error" id="no-credits" hidden>Please provide a valid value</div>
+    </div>
+    </br>
+<input type="hidden" name="returnURL" value="{{returnURL}}">
+
+    <button class="submit" type="submit">Transfer Credits</button>
+</form>
+</br>
+</br>
+<a class="GoBack" href="{{returnURL}}" style="position:absolute; bottom:1cm">Go Back</a>
+
+
+
+{{!-- <button class="submit" type="submit">Transfer Credits</button>
+</form>
+</br>
+</br>
+<a class="GoBack" href="/login" style="position:absolute; bottom:1cm">Go Back</a> --}}

@@ -1,0 +1,35 @@
+
+<h1>Event Registration</h1>
+<form class="registration-form" action="/eventRegistration" id="eventRegistration-form" method="post">
+    <div>
+        <label for="eventName">Enter Event Name:</label>
+        <input name="eventName" id="eventName" type="text">    
+    </div>
+    <div class="error" id="no-eventName" hidden>Please provide an event name</div>
+    </br>
+    <div>
+        <label for="location">Enter Location:</label>
+        <input name="location" id="location" type="text">
+    </div>
+    <div class="error" id="no-location" hidden>Please provide a location</div>
+    </br>
+    <div>
+        <label for="time">Enter Time:</label>
+        <input name="time" id="time" type="time">
+    </div>
+    <div class="error" id="no-time" hidden>Please provide a time</div>
+    </br>
+    <div>
+        <label for="date">Enter Date:</label>
+        <input name="date" id="date" type="date">
+    </div>
+    <div class="error" id="no-date" hidden>Please provide a date</div>
+    </br>
+    <button class="log" type="submit">Register for Event</button>
+</form>
+</br>
+</br>
+<a class="Goback" href="/login" style="position:absolute; bottom:1cm">Goback</a>
+
+
+
