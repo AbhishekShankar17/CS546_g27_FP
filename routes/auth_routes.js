@@ -6,6 +6,7 @@ import { createEvent, createUser, getallevents, updateUser, getUserById, getallu
 import { checkUser } from "../data/users.js";
 import validation from '../helpers.js';
 
+import { sendRegistrationEmail, sendEventCreationEmail, sendEventRegistrationEmail, sendCreditTransferEmail } from './emailNotifications.js';
 
 import { Router } from "express";
 const router = Router();
@@ -93,13 +94,13 @@ router
         "Password"
       );
       if (/^(.{0,7}|[^0-9]*|[^A-Z]*|[a-zA-Z0-9]*)$/.test(passwordInput)) {
-        throw "Error: Invalid Passwords";
+        throw "Your password must at least have one uppercase character, at least one number and at least one special character";
       }
       if (passwordInput.match(/\s/g)) {
-        throw "Error: Invalid Passwords";
+        throw "Invalid Passwords";
       }
       if (confirmPasswordInput !== passwordInput) {
-        throw "Error: Passwords do not match";
+        throw "Passwords do not match";
       }
       roleInput = validation.checkString(roleInput, "Role");
       if (!/^(admin|user)$/.test(roleInput)) {
@@ -122,6 +123,12 @@ router
       if (
         Object.entries(newuser).toString() == Object.entries(out).toString()
       ) {
+        const registrationEmailText = 'You have successfully registered into meetSmart!';
+        await sendRegistrationEmail(
+        req.body.emailAddressInput,
+        'Welcome to meetSmart!', // Email subject
+        registrationEmailText     // Email body/content
+      ); 
         return res.redirect("/login");
       } else {
         throw "Internal Server Error";
@@ -245,7 +252,7 @@ router.route("/admin").get(async (req, res) => {
 
         const reviews = await getAllReviewsByEventId(eventId);
 
-        return { event: eachevent, reviews };
+        return { reviewedevent: eachevent, reviews };
       });
 
       const eventReviews = await Promise.all(eventReviewsPromises);
@@ -262,7 +269,7 @@ router.route("/admin").get(async (req, res) => {
         currentTime: time,
         admin: true,
         eventReviews: eventReviews,
-        userReview: userReviews
+        userReview: userReviews,
       });
     } else {
       res.redirect("/login");
@@ -272,6 +279,7 @@ router.route("/admin").get(async (req, res) => {
     res.status(500).render('error', { error: `${error}` });
   }
 });
+
 
 
 
@@ -372,20 +380,40 @@ router.route("/createEvent")
   router.route("/createEvent")
   .post(async (req, res) => {
     try {
+      const { capacity, date, duration, location, time, eventName } = req.body;
+
+      if ( !date || !duration || !location || !time || !eventName || !capacity) {
+        throw 'Please provide all fields';
+      }
+
+      const currentUserEmail = req.session.user.emailAddress;
+      // location = location.toLowerCase().trim();
+      if(isNaN(capacity)) throw "capacity should be a number";
+      if(isNaN(duration)) throw "duration should be a number";
+      if(duration > 8) throw "Maximum event duration is 8 hours ";
       // Check if the user is an admin
-      if (req.session.user.role === "admin") {
+      if (req.session.user && req.session.user.role === "admin") {
         const result = await createEvent(
-          req.body.organizer,
-          req.body.capacity,
-          req.body.date,
-          req.body.duration,
-          req.body.location,
-          req.body.time,
-          req.body.eventName
+          // req.body.organizer,
+          // req.body.capacity,
+          // req.body.date,
+          // req.body.duration,
+          // req.body.location,
+          // req.body.time,
+          // req.body.eventName,
+          capacity,
+          date, 
+          duration, 
+          location,
+          time,
+          eventName, 
+          currentUserEmail
         );
 
+        
+
         // Get the event name from the result
-        const eventName = result.meeting.eventName;
+        // const eventName = result.meeting.eventName;
 
         // Display success message
         // return res.render("createEvent", {
@@ -393,9 +421,16 @@ router.route("/createEvent")
         //   firstName: req.session.user.firstName,
         //   role: req.session.user.role,
         //   admin: true,
-        // });
-        return res.redirect("/login");
-      } else {
+        // });  const registrationEmailText = 'You have successfully created the event';
+        const registrationEmailText = 'You have successfully created the event';
+        await sendEventCreationEmail(
+          currentUserEmail,
+        'Congratulations!!!', // Email subject
+        registrationEmailText     // Email body/content
+      ); 
+      res.render('eventSuccess', { message: 'Event created successfully' });
+    }
+       else {
         // If the user is not an admin, handle accordingly
         return res.status(403).json({ error: "You do not have permission to create events." });
       }
@@ -756,7 +791,7 @@ router
         throw result.error;
       }
     } catch (error) {
-      res.status(400).render('userreviews', { error: `${error}` });
+      res.status(400).render('userreviews', { error: `${error}`});
     }
   });
 
@@ -809,98 +844,6 @@ router.route("/viewuser").get(async (req, res) => {
     }
   });
 
-
-
-
-
-  
-  
-
-
-  
-  // router.route("/eventRegistration")
-  // .get(async (req, res) => {
-  //   // Render the event registration form
-  //   res.render("eventRegistration");
-  // })
-  // .post(async (req, res) => {
-  //   try {
-  //     // Validate input fields
-  //     const { eventName, location, time, date } = req.body;
-
-  //     if (!eventName || !location || !time || !date) {
-  //       throw "Please provide all the fields";
-  //     }
-
-  //     // Add additional input validation if needed
-  //     const validatedEventName = validation.checkString(eventName, "Event Name");
-  //     const validatedLocation = validation.checkString(location, "Location");
-
-  //     // Check if an event with the given details exists
-  //     const existingEvent = await getEventByDetails(validatedEventName, validatedLocation, time, date);
-
-  //     if (existingEvent) {
-  //       // Event exists, perform event registration
-  //       const registrationResult = await eventRegistration(
-  //         validatedEventName,
-  //         validatedLocation,
-  //         time,
-  //         date
-  //       );
-
-  //       // Handle the result as needed (e.g., display success message, redirect, etc.)
-  //       return res.json({ success: true, message: `Event Registration for ${validatedEventName} is successful` });
-  //     } else {
-  //       // No event exists with the given details
-  //       return res.json({ success: false, message: "No event exists with the given details" });
-  //     }
-  //   } catch (error) {
-  //     // Handle validation errors or other errors
-  //     console.error(error);
-  //     return res.status(400).render("eventRegistration", { error: `${error}` });
-  //   }
-  // });
-
-  
-  
-
-  // router.route("/eventRegistration")
-  // .get(async (req, res) => {
-  //   // Render the event registration form
-  //   res.render("eventRegistration");
-  // })
-  // .post(async (req, res) => {
-  //   try {
-  //     // Validate input fields
-  //     const { eventName, location, time, date } = req.body;
-
-  //     if (!eventName || !location || !time || !date) {
-  //       throw "Please provide all the fields";
-  //     }
-
-  //     // Extract user details from the session
-  //     const { firstName, lastName, emailAddress } = req.session.user;
-
-  //     // Check if an event with the given details exists
-  //     const existingEvent = await getEventByDetails(eventName, location, time, date);
-
-  //     if (existingEvent) {
-  //       // Event exists, perform event registration
-  //       await eventRegistration(eventName, location, date, time, firstName, lastName, emailAddress);
-
-  //       // Handle success (e.g., display success message, redirect, etc.)
-  //       return res.json({ success: true, message: `Event Registration for ${eventName} is successful` });
-  //     } else {
-  //       // No event exists with the given details
-  //       return res.json({ success: false, message: "No event exists with the given details" });
-  //     }
-  //   } catch (error) {
-  //     // Handle validation errors or other errors
-  //     console.error(error);
-  //     return res.status(400).render("eventRegistration", { error: `${error}` });
-  //   }
-  // });
-
   router.route("/eventRegistration")
   .get(async (req, res) => {
     // Render the event registration form
@@ -910,7 +853,7 @@ router.route("/viewuser").get(async (req, res) => {
     try {
       // Extract necessary parameters from the request body or wherever they are available
       const { eventName, location, date, time } = req.body;
-  
+      const emailAddress = req.session.user.emailAddress;
       // Check if the user is authenticated
       if (!req.session.user) {
         return res.status(401).json({ success: false, message: 'User not authenticated' });
@@ -921,7 +864,15 @@ router.route("/viewuser").get(async (req, res) => {
   
       // Check the result and send a response
       if (result.success) {
-        res.json({ success: true, message: 'User registration successful' });
+        const registrationEmailText = 'You have successfully created the event';
+        await sendEventRegistrationEmail(
+          emailAddress,
+        'Hurray!!!', // Email subject
+        registrationEmailText     // Email body/content
+      ); 
+      return res.render("eventSuccess", {
+        message: "event registered",
+      });
       } else {
         res.status(400).json({ success: false, message: result.message });
       }
@@ -1019,10 +970,25 @@ router.route("/viewuser").get(async (req, res) => {
       const result = await creditsTransfer(
         senderEmailAddress, receiverEmailAddress, numberOfCredits, currentUserEmail
       );
-      
-      return res.json({ success: result.success, message: result.message });
 
-    } catch (error) {
+      if (result.success) {
+         
+        // Send credit transfer email notification
+        const senderEmailText = `You have successfully transferred ${numberOfCredits} credits to ${receiverEmailAddress}.`;
+        await sendCreditTransferEmail(senderEmailAddress, 'Credit Transfer', senderEmailText);
+
+        // Send credit transfer email notification to receiver
+        const receiverEmailText = `You have received ${numberOfCredits} credits from ${senderEmailAddress}.`;
+        await sendCreditTransferEmail(receiverEmailAddress, 'Credit Received', receiverEmailText);
+
+        
+        return res.render("eventSuccess", {
+          message: "Credit transferred successfully",
+        });
+      } else {
+        res.status(400).json({ success: false, message: result.message });
+      }
+    }catch (error) {
       // Handle validation errors or other errors
       console.error(error);
       return res.status(400).render("creditsTransfer", { error: `${error}` });

@@ -1,10 +1,10 @@
 <h1>Create the Meeting </h1>
 <form class="meeting-form" action="/createEvent" id="eventCreation-form" method="post">
-    <div>
+    {{!-- <div>
         <label for="organizer">Enter Organizer:</label>
         <input name="organizer" id="organizer" type="text">    
-    </div>
-    <div class="error" id="no-organizer" hidden>Please provide an organizer</div>
+    </div> --}}
+    {{!-- <div class="error" id="no-organizer" hidden>Please provide an organizer</div> --}}
     </br>
     <div>
         <label for="capacity">Enter Capacity:</label>
@@ -42,6 +42,10 @@
     </div>
     <div class="error" id="no-eventName" hidden>Please provide a eventName</div>
     </br>
+    <div>
+    <input type="hidden" name="organizer" value="{{session.user.emailAddress}}">
+  </div>
+  </br>
     <button class="log" type="submit">Create Meeting</button>
 </form>
 </br>
