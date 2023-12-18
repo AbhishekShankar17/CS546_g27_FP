@@ -1,7 +1,7 @@
 //import express, express router as shown in lecture code
 
 
-import { createEvent, createUser, getallevents, updateUser, getUserById, getallusers, getEventByDetails, eventRegistration, creditsTransfer, getEventByName,updateEventReview ,getReviewByUserAndEvent, getReviewByUser, getAllReviewsByUser, getAllEventsByOrganizerId, getAllReviewsByEventId , deleteEvent} from "../data/users.js";
+import { createEvent, createUser, getallevents, updateUser, getUserById, getallusers, getEventByDetails, eventRegistration, creditsTransfer, getEventByName,updateEventReview ,getReviewByUserAndEvent, getReviewByUser, getAllReviewsByUser, getAllEventsByOrganizerId, getAllReviewsByEventId , deleteEvent, searchEvents} from "../data/users.js";
 
 import { checkUser } from "../data/users.js";
 import validation from '../helpers.js';
@@ -442,57 +442,86 @@ router.route("/createEvent")
 
 
 
-// Delete Meeting
-router.delete('/:id', async (req, res) => {
-  try {
-    const meetingId = req.params.id;
-    const organizerId = req.user.id; // Assuming you use authentication middleware
+// // Delete Meeting
+// router.delete('/:id', async (req, res) => {
+//   try {
+//     const meetingId = req.params.id;
+//     const organizerId = req.user.id; // Assuming you use authentication middleware
 
-    const meeting = await Meeting.findById(meetingId);
+//     const meeting = await Meeting.findById(meetingId);
 
-    if (!meeting) {
-      return res.status(404).json({ error: 'Meeting not found' });
+//     if (!meeting) {
+//       return res.status(404).json({ error: 'Meeting not found' });
+//     }
+
+//     if (String(meeting.organizer) !== organizerId) {
+//       return res.status(403).json({ error: 'Unauthorized' });
+//     }
+
+//     // Check if the meeting is scheduled in the future, you might want to use a specific field for this
+//     if (meeting.date > new Date()) {
+//       await Meeting.findByIdAndDelete(meetingId);
+
+//       // Refund credits to the organizer
+//       const updatedUser = await User.findByIdAndUpdate(
+//         organizerId,
+//         { $inc: { credits: 1 } }, // Refund 1 credit
+//         { new: true }
+//       );
+
+//       res.json({ message: 'Meeting deleted successfully', user: updatedUser });
+//     } else {
+//       res.status(400).json({ error: 'Cannot delete past meetings' });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
+
+
+
+
+
+router.route("/filters")
+  .get(async (req, res) => {
+    try {
+      // Handle search query if provided
+      const searchQuery = req.query.searchQuery; // Assuming the search query is in the query parameters
+      let eventsList;
+
+      if (searchQuery) {
+        // If there's a search query, filter events based on it
+        eventsList = await searchEvents(searchQuery);
+      } else {
+        // If no search query, get all events
+        eventsList = await getallevents();
+      }
+
+      res.render("filters", {
+        firstName: req.session.user.firstName,
+        lastName: req.session.user.lastName,
+        eventsList: eventsList,
+      });
+    } catch (e) {
+      // Handle errors appropriately
+      console.error("Error in GET /filters:", e);
+      res.status(500).render("error", { error: e.message || 'Internal Server Error' });
     }
-
-    if (String(meeting.organizer) !== organizerId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+  })
+  .post(async (req, res) => {
+    try {
+      // Handle search query if provided
+      const searchQuery = req.body.searchQuery;
+      const eventsList = await searchEvents(searchQuery);
+      res.json(eventsList);
+      console.log("Got the events successfully");
+    } catch (e) {
+      console.error("Error in POST /filters:", e);
+      res.status(500).json({ error: e.message || 'Internal Server Error' });
     }
+  });
 
-    // Check if the meeting is scheduled in the future, you might want to use a specific field for this
-    if (meeting.date > new Date()) {
-      await Meeting.findByIdAndDelete(meetingId);
-
-      // Refund credits to the organizer
-      const updatedUser = await User.findByIdAndUpdate(
-        organizerId,
-        { $inc: { credits: 1 } }, // Refund 1 credit
-        { new: true }
-      );
-
-      res.json({ message: 'Meeting deleted successfully', user: updatedUser });
-    } else {
-      res.status(400).json({ error: 'Cannot delete past meetings' });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-router.route("/filters").get(async (req, res) => {
-  //code here for GET
-  //let admin = false;
-  
-  
-  try {
-    
-    const eventsList = await getallevents();
-    res.json(eventsList);
-    console.log("Got the event successfully");
-  } catch (e) {
-    res.status(200).json({error: e});
-  }  
-});
 
 
 router
@@ -994,24 +1023,27 @@ router.route("/viewuser").get(async (req, res) => {
       return res.status(400).render("creditsTransfer", { error: `${error}` });
     }
   });
-    
-  router.route('/deleteEvent').get(async (req,res) =>{
-    res.render("deleteEvent");
-
+  
+  router.route("/deleteEvent")
+  .get(async (req, res) => {
+    res.render('deleteEvent');
   })
-  router.route('/deleteMeeting')
   .post(async (req, res) => {
     try {
+      const { eventName, location, time, date } = req.body;
+      const organizerId = req.session.user._id;
+      console.log(organizerId);
 
-      const meetingId = req.body.meetingId;
-      // const organizerId = req.user.id; // Assuming you use authentication middleware
-
-      const result = await deleteEvent(meetingId);
+      const result = await deleteEvent(eventName, location, time, date, organizerId);
 
       res.json({ message: result });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error });
+      if (error === 'Event not found.' || error === 'Unauthorized') {
+        res.status(403).json({ error });
+      } else {
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     }
   });
 

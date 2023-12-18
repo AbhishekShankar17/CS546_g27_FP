@@ -1,14 +1,16 @@
 <div class="search">
-  <p>Enter a search query below to search the events database.</p>  
+  <p>Enter a search query below to search the events database.</p>
 </div>
 
-<form id="searchForm">
-  <label for="searchQuery"></label>
-  <input type="text" name="searchQuery" id="searchQuery" placeholder="Enter search query...">  
-  <button type="submit">Search</button>
-</form>
+<form class="searchForm" action="/filters" id="searchForm" method="post">
+  <div>
+    <label for="searchQuery">Event Name:</label>
+    <input name="searchQuery" id="searchQuery" type="text" placeholder="Enter the event name">
+    <div class="error" id="no-eventName" hidden>Please provide the event name</div>
+  </div>
 
-<p class="error" id="searchError"></p>
+  <button class="submit" type="submit">Search</button>
+</form>
 
 <ul id="searchResults">
   <!-- Results inserted dynamically -->

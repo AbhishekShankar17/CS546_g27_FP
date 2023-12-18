@@ -10,6 +10,8 @@ let lastNameInput = document.getElementById('lastNameInput');
 let confirmPasswordInput = document.getElementById('confirmPasswordInput');
 let roleInput = document.getElementById('roleInput');
 
+
+
 let newemailAddressInput = document.getElementById('newemailAddressInput');
 let newpasswordInput = document.getElementById('newpasswordInput');
 let newfirstNameInput = document.getElementById('newfirstNameInput');
@@ -277,3 +279,24 @@ if (FeedbackForm) {
   })
 }
 
+
+const searchForm = document.getElementById('searchForm');
+const searchQuery = document.getElementById('searchQuery');
+const searchQueryError = document.getElementById('no-eventName');
+
+if (searchForm) {
+  searchForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    // Reset all error messages
+    searchQueryError.hidden = true;
+
+    if (searchQuery.value.trim() !== "") {
+      searchForm.submit();
+    } else {
+      searchQueryError.hidden = false;
+    }
+  });
+}
+
+  
