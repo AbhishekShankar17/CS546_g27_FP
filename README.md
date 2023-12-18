@@ -29,14 +29,15 @@ MeetSmart sends confirmation emails to users for important events, such as succe
 - How To Setup:
 
 We have Project Folder containing:
-config/; stores all configuration settings.
-data/; contains all database access modules
-public/; for public assets (stylesheets, JS)
-​​routes/; contains all routing scripts
-views/; contains HTML views and templates
-app.js; initializes and runs a server
-helpers.js; validation checking
-package.json; describes the application, and its dependencies
+- config/; stores all configuration settings.
+- data/; contains all database access modules
+- public/; for public assets (stylesheets, JS)
+- ​​routes/; contains all routing scripts
+- views/; contains HTML views and templates
+- app.js; initializes and runs a server
+- helpers.js; validation checking
+- package.json; describes the application, and its dependencies
+
 Note: we need to add "type": "module", "start": "node app.js"
 
 The dependencies we used here are:
