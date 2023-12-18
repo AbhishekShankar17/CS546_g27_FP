@@ -23,10 +23,14 @@ export const createUser = async (
   if(lastName.length<2 || lastName.length>25){
     throw 'Error: Invalid last name length'
   }
-  emailAddress = emailAddress.toLowerCase();
-  if(!( /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(emailAddress))){
-    throw 'Error: Invalid email address'
-  }
+  emailAddressInput = emailAddressInput.toLowerCase();
+      if (
+        !/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@stevens\.edu$/.test(
+          emailAddressInput
+        )
+      ) {
+        throw "Error: Email address must end with stevens.edu";
+      }
   const userCollection= await users();
   let user = await userCollection.findOne({emailAddress})
   if(user){
