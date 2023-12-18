@@ -11,7 +11,8 @@ Submit the registration form.
 Enter your registered email address and password and log into the account
 - Explore Available Credits:
 While creating the account , you can select either of the two options: User and Admin
-If you log in as an admin, you will be taken to a page where you can view multiple options almost simiar to when you log in as a user but the key difference is that you can only create events when you log in as an admin. You can always update your role to user or admin.
+- After you log in as an admin, you will be taken to a page where you can view multiple options almost simiar to when you log in as a user but the key difference is that you can only create events when you log in as an admin. You can always update your role to user or admin.
+
 Lets say , you logged in as user and you want to create an event, you can change your role and create events.
 Whenever you create an event , one credit will be deducted.
 - Browse Meeting/Event Options:
