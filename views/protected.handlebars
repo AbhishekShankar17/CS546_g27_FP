@@ -1,29 +1,7 @@
-{{!-- </br>
-<div>
-    Welcome {{firstName}}, the time is now: {{currentTime}}. Your role in the system is: {{role}}."
-</div>
-
-{{#if admin}}
-<p><a href="/admin">Back to the admin page</a></p>
-{{/if}}
-
- 
 
 
-<a href="/viewuser">Click here to view profile!</a> 
-</br>
-<a href="/edituser">Click here to edit profile!</a> 
-</br>
-<a href="/eventRegistration">Click here to register for an event!</a> 
-</br>
-</br>
-</br>
-</br>
-</br>
-<a class="logout-style" href="/logout" style="position:absolute; bottom:1cm">Logout</a> --}}
 
 
-</br>
 <div>
     Welcome {{firstName}}, the time is now: {{currentTime}}. Your role in the system is: {{role}}.
 </div>
@@ -32,12 +10,28 @@
     <p><a href="/admin">Back to the admin page</a></p>
 {{/if}}
 
-<a href="/viewuser">Click here to view profile!</a> 
+<button onclick="window.location.href='/viewuser'" type="button">
+  Click here to view profile!
+</button>
 </br>
-<a href="/edituser">Click here to edit profile!</a> 
 </br>
-<a href="/eventRegistration">Click here to register for an event!</a>
+<button onclick="window.location.href='/edituser'" type="button">
+  Click here to edit profile!
+</button>
+</br> 
 </br>
-<a href="/creditsTransfer">Click here to transfer credits to a friend</a>
+<button onclick="window.location.href='/eventRegistration'" type="button">
+  Click here to register for an event!
+</button>
+</br>
+</br>
+<button onclick="window.location.href='/creditsTransfer'" type="button">
+  Click here to transfer credits to a friend!
+</button>
+</br>
+</br>
+<button onclick="window.location.href='/userreviews'" type="button">
+  Click here to provide feedback for an event!
+</button>
 </br>
 <a class="logout-style" href="/logout" style="position:absolute; bottom:1cm">Logout</a>

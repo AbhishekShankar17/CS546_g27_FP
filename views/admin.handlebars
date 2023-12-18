@@ -1,30 +1,86 @@
-{{!--
-
-If the user is logged in and they are an admin user, and 'GET /admin' endpoint is called, you will render this view
-based on the specs.
-
-
-
---}}
-
 <div>
-    Welcome {{firstName}}, the time is now: {{currentTime}}. You get super secret admin access since you are an admin. Remember, with great power comes great responsibility"
+  Welcome {{firstName}}, the time is now: {{currentTime}}. You have super-secret admin access since you are an admin. Remember, with great power comes great responsibility.
 </div>
 </br>
 
-<a href="/protected">link to the user page</a>
+{{#if admin}}
+  <h1>{{firstName}}'s profile</h1>
+  </br>
+  <div>
+    Hello {{firstName}} {{lastName}}!! Here is your profile
+  </div>
+  </br>
+  <div>
+    FirstName: {{firstName}}
+  </div>
+  </br>
+  <div>
+    lastName: {{lastName}}
+  </div>
+  </br>
+  <div>
+    emailAddress: {{emailAddress}}
+  </div>
+  </br>
+  <div>
+    role: {{role}}
+  </div>
+  </br>
+  <div>
+    credits: {{credits}}
+  </div>
+  </br>
+  <div>
+    <h2>User Reviews</h2>
+    {{#each eventReviews}}
+      <h3>Event Name: {{this.reviewedevent.eventName}}</h3>
+      <ul>
+        {{#each this.reviews}}
+          <li>
+            <p>Rating: {{this.rating}}</p>
+            <p>Comments: {{this.comments}}</p>
+            <!-- Add other review fields as needed -->
+          </li>
+        {{/each}}
+      </ul>
+    {{/each}}
+  </div>
+  </br>
+{{/if}}
+
+</br>
+<button onclick="window.location.href='/protected'" type="button">
+  Link to the user page!
+</button>
 
 </br>
 </br>
 </br>
 </br>
-<a href="/createEvent">Click here to create an Event! Only admin has the privilage to create Event!!!</a>
+<button onclick="window.location.href='/createEvent'" type="button">
+  Click here to create an Event! Only admin has the privilege to create an Event!!!
+</button>
+
 </br>
 </br>
-<a href="/eventRegistration">Click here to register for an event!</a>
+<button onclick="window.location.href='/eventRegistration'" type="button">
+  Click here to register for an event!
+</button>
+
 </br>
 </br>
-<a href="/creditsTransfer">Click here to transfer credits to a friend</a>
+<button onclick="window.location.href='/creditsTransfer'" type="button">
+  Click here to transfer credits to a friend!
+</button>
+
+<br>
+<br>
+<button onclick="window.location.href='/deleteEvent'" type="button">
+  Click here to delete the event!
+</button>
+
+
 </br>
 </br>
+
 <a href="/logout" style="position:absolute; bottom:1cm">Logout</a>

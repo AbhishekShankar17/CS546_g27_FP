@@ -1,14 +1,14 @@
 {
-  "name": "cs546_g27_fp-main",
+  "name": "lab10_stub",
   "version": "1.0.0",
-  "description": "",
+  "description": "MeetSmart",
   "main": "app.js",
   "type": "module",
   "scripts": {
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Group 27 Project CS 546- Fall 2023",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -16,7 +16,7 @@
     "express": "^4.18.2",
     "express-handlebars": "^7.1.2",
     "express-session": "^1.17.3",
-    "mongodb": "^6.3.0",
+    "mongodb": "^5.9.2",
     "nodemailer": "^6.9.7"
   }
 }

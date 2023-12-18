@@ -1,7 +1,7 @@
-<h1>{{firstName}} 's profile </h1>
+<h1>{{firstName}}'s profile</h1>
 </br>
 <div>
-    Hello {{firstName}} !! Here is your profile
+    Hello {{firstName}} {{lastName}}!! Here is your profile
 </div>
 </br>
 <div>
@@ -25,9 +25,27 @@
 </div>
 
 {{#if admin}}
-<p><a href="/admin">Back to the admin page</a></p>
+  <p><a href="/admin">Back to the admin page</a></p>
 {{/if}}
 </br>
+</br>
+<div>
+    <h2>User Reviews</h2>
+    {{#if userReview}}
+      <ul>
+        {{#each userReview}}
+          <li>
+            <p>Event Name: {{this.eventName}}</p>
+            <p>Rating: {{this.rating}}</p>
+            <p>Comments: {{this.comments}}</p>
+            <!-- Add other review fields as needed -->
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p>No reviews found for this user.</p>
+    {{/if}}
+</div>
 </br>
 
 <a class="Goback" href="/login" style="position:absolute; bottom:1cm">Goback</a>
