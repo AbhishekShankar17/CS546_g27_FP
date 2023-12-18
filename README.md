@@ -10,14 +10,14 @@ Submit the registration form.
 - Login to your account
 Enter your registered email address and password and log into the account
 - Explore Available Credits:
-Upon logging in, check your account dashboard to view the credits allocated to you. These credits will be used to book meeting rooms
+While creating the account , you can select either of the two options: User and Admin
+If you log in as an admin, you will be taken to a page where you can view multiple options almost simiar to when you log in as a user but the key difference is that you can only create events when you log in as an admin. You can always update your role to user or admin.
+Lets say , you logged in as user and you want to create an event, you can change your role and create events.
+Whenever you create an event , one credit will be deducted.
 - Browse Meeting/Event Options:
-Use the available filters (room, date, time, location, meeting/event name) to find suitable meetings.
+  Use event name to find suitable meetings.
 - Book a Meeting/Event:  
-Once you find a meeting/event of interest.Confirm the booking and wait for approval from the meeting/event organizer. 
-- View Meeting/Event Status: 
-Check the status of your booked meetings/events.
-The status may indicate whether your registration has been approved or rejected.
+Once you find a meeting/event of interest , register for that event.
 - Edit Your Profile:
 Explore the "Profile" section to view and edit your personal information.
 - Provide Reviews:
