@@ -5,7 +5,7 @@ const sendEmail = async (to, subject, text) => {
     service: "hotmail",
     auth: {
       user: 'skadimel@outlook.com',
-      pass: 'gssvdcrzhpxyhovo',
+      pass: 'epfbnczhqmqepbap',
     },
   });
 
