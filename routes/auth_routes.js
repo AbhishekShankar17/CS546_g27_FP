@@ -225,12 +225,6 @@ router.route("/protected").get(async (req, res) => {
   }
 });
 
-// router.route("/admin").get(async (req, res) => {
-//   //code here for GET
-//   let today = new Date();
-//   let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-//   res.render("admin",{firstName: req.session.user.firstName, currentTime:time, admin:true});
-// });
 
 router.route("/admin").get(async (req, res) => {
   try {
@@ -297,61 +291,6 @@ router.route("/logout").get(async (req, res) => {
 });
 
 
-// router.route("/createEvent")
-//   .get(async (req, res) => {
-//     // Check if the user is an admin
-//     let admin = false;
-
-//     if (req.session.user) {
-//       try {
-//         if (req.session.user.role === "admin") {
-//           admin = true;
-//           return res.render("createEvent", {
-//             firstName: req.session.user.firstName,
-//             role: req.session.user.role,
-//             admin: admin,
-//           });
-//         }
-//       } catch (e) {
-//         console.error(e);
-//         return res.status(500).render('error', { error: `${e}` });
-//       }
-//     }
-
-//     // If the user is not an admin or not logged in, handle accordingly
-//     return res.status(403).render("createEvent", { error: "You do not have permission to create events." });
-//   })
-//   router.route("/createEvent")
-  // .post(async (req, res) => {
-  //   try {
-  //     // Check if the user is an admin
-  //     if (req.session.user.role === "admin") {
-  //       // Rest of the code for POST
-
-  //       const result = await createEvent(
-  //         req.body.organizer,
-  //         req.body.capacity,
-  //         req.body.date,
-  //         req.body.duration,
-  //         req.body.location,
-  //         req.body.time,
-  //         req.body.eventName
-  //       );
-
-  //       //const savedMeeting = result.meeting;
-  //       //const updatedUser = result.user;
-
-  //       // Redirect to /login upon successful event creation
-  //       return res.redirect("/login");
-  //     } else {
-  //       // If the user is not an admin, handle accordingly
-  //       return res.status(403).json({ error: "You do not have permission to create events." });
-  //     }
-  //   } catch (e) {
-  //     console.error(e);
-  //     return res.status(400).render("createEvent", { error: `${e}` });
-  //   }
-  // });
 
 router.route("/createEvent")
   .get(async (req, res) => {
@@ -394,13 +333,6 @@ router.route("/createEvent")
       // Check if the user is an admin
       if (req.session.user && req.session.user.role === "admin") {
         const result = await createEvent(
-          // req.body.organizer,
-          // req.body.capacity,
-          // req.body.date,
-          // req.body.duration,
-          // req.body.location,
-          // req.body.time,
-          // req.body.eventName,
           capacity,
           date, 
           duration, 
@@ -410,18 +342,7 @@ router.route("/createEvent")
           currentUserEmail
         );
 
-        
-
-        // Get the event name from the result
-        // const eventName = result.meeting.eventName;
-
-        // Display success message
-        // return res.render("createEvent", {
-        //   successMessage: `MeetSmart has created your event "${eventName}" successfully`,
-        //   firstName: req.session.user.firstName,
-        //   role: req.session.user.role,
-        //   admin: true,
-        // });  const registrationEmailText = 'You have successfully created the event';
+  
         const registrationEmailText = 'You have successfully created the event';
         await sendEventCreationEmail(
           currentUserEmail,
@@ -440,44 +361,6 @@ router.route("/createEvent")
     }
   });
 
-
-
-// // Delete Meeting
-// router.delete('/:id', async (req, res) => {
-//   try {
-//     const meetingId = req.params.id;
-//     const organizerId = req.user.id; // Assuming you use authentication middleware
-
-//     const meeting = await Meeting.findById(meetingId);
-
-//     if (!meeting) {
-//       return res.status(404).json({ error: 'Meeting not found' });
-//     }
-
-//     if (String(meeting.organizer) !== organizerId) {
-//       return res.status(403).json({ error: 'Unauthorized' });
-//     }
-
-//     // Check if the meeting is scheduled in the future, you might want to use a specific field for this
-//     if (meeting.date > new Date()) {
-//       await Meeting.findByIdAndDelete(meetingId);
-
-//       // Refund credits to the organizer
-//       const updatedUser = await User.findByIdAndUpdate(
-//         organizerId,
-//         { $inc: { credits: 1 } }, // Refund 1 credit
-//         { new: true }
-//       );
-
-//       res.json({ message: 'Meeting deleted successfully', user: updatedUser });
-//     } else {
-//       res.status(400).json({ error: 'Cannot delete past meetings' });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   }
-// });
 
 
 
@@ -616,166 +499,7 @@ router
   });
 
 
-  // router.route("/viewuser").get(async (req, res) => {
-  //   //code here for GET
-  //   let admin = false;
-  // const userReview = await getReviewByUser(req.session.user.userId);
-    
-  //   if(req.session.user){
-  //   try{
-  //     if (req.session.user.role === "admin") {
-  //       admin = true;
-  //       res.render("viewuser", {
-  //         firstName: req.session.user.firstName,
-  //         lastName: req.session.user.lastName,
-  //         emailAddress: req.session.user.emailAddress,
-  //         role: req.session.user.role,
-  //         credits: req.session.user.credits,
-  //            userReview,
-  //     });
-  //   }
-  //   }catch(e){
-  //     return res.status(500).render('error', {error:`${e}`});
-  //   }
-    
-  //   res.render("viewuser", {
-  //     firstName: req.session.user.firstName,
-  //     lastName: req.session.user.lastName,
-  //     emailAddress: req.session.user.emailAddress,
-  //     role: req.session.user.role,
-  //     credits: req.session.user.credits,
-  //        userReview,
-  //   });
-  //   }
-  // });
-
-  // router.route("/viewuser").get(async (req, res) => {
-  //   try {
-  //     let admin = false;
-  //     let userReview;
   
-  //     // Check if the user is logged in
-  //     if (req.session.user && req.session.user.userId) {
-  //       // Fetch user's review if user is logged in
-  //       userReview = await getReviewByUser(req.session.user.userId);
-  
-  //       try {
-  //         if (req.session.user.role === "admin") {
-  //           admin = true;
-  //           res.render("viewuser", {
-  //             firstName: req.session.user.firstName,
-  //             lastName: req.session.user.lastName,
-  //             emailAddress: req.session.user.emailAddress,
-  //             role: req.session.user.role,
-  //             credits: req.session.user.credits,
-  //             userReview,
-  //           });
-  //         }
-  //       } catch (e) {
-  //         return res.status(500).render('error', { error: `${e}` });
-  //       }
-  
-  //       // Render viewuser page for non-admin users
-  //       res.render("viewuser", {
-  //         firstName: req.session.user.firstName,
-  //         lastName: req.session.user.lastName,
-  //         emailAddress: req.session.user.emailAddress,
-  //         role: req.session.user.role,
-  //         credits: req.session.user.credits,
-  //         userReview,
-  //       });
-  //     } else {
-  //       // Handle case where user is not logged in
-  //       res.redirect("/login");
-  //     }
-  //   } catch (error) {
-  //     // Handle the error thrown by getReviewByUser
-  //     res.status(500).render('error', { error: `${error}` });
-  //   }
-  // });
-  
-  
-  
-  
-
-
-
-  // router
-  // .route('/userreviews')
-  // .get(async (req, res) => {
-  //   try {
-  //     res.render('userreviews', {
-  //       firstName: req.session.user.firstName,
-  //       lastName: req.session.user.lastName
-  //     });
-  //   } catch (error) {
-  //     res.status(500).render('error', { error: 'Internal Server Error' });
-  //   }
-  // })
-  // .post(async (req, res) => {
-  //   try {
-  //     const { eventName, location, date, time, rating, comments } = req.body;
-
-  //     if (!eventName || !location || !date || !time || !rating || !comments) {
-  //       throw 'Error: Must provide all fields';
-  //     }
-
-      
-  //     const result = await updateEventReview(eventName, location, date, time, rating, comments);
-
-  //     if (result.success) {
-        
-  //       res.redirect('/viewuser');
-  //     } else {
-        
-  //       throw result.error;
-  //     }
-  //   } catch (error) {
-  //     res.status(400).render('userreviews', { error: `${error}` });
-  //   }
-  // });
-
-  // router
-  // .route('/userreviews')
-  // .get(async (req, res) => {
-  //   try {
-  //     res.render('userreviews', {
-  //       firstName: req.session.user.firstName,
-  //       lastName: req.session.user.lastName
-  //     });
-  //   } catch (error) {
-  //     res.status(500).render('error', { error: 'Internal Server Error' });
-  //   }
-  // })
-  // .post(async (req, res) => {
-  //   try {
-  //     const { eventName, location, date, time, rating, comments } = req.body;
-
-  //     if (!eventName || !location || !date || !time || !rating || !comments) {
-  //       throw 'Error: Must provide all fields';
-  //     }
-
-  //     const userId = req.session.user.userId; // Assuming userId is available in the session
-
-  //     // Check if the user has already submitted a review for the specified event
-  //     const existingReview = await getReviewByUserAndEvent(userId, eventName, location, date, time);
-
-  //     if (existingReview) {
-  //       throw "You have already submitted a review for this event. You can edit your existing review on the 'View User' page.";
-  //     }
-
-  //     const result = await updateEventReview(userId, eventName, location, date, time, rating, comments);
-
-  //     if (result.success) {
-  //       res.redirect('/viewuser');
-  //     } else {
-  //       throw result.error;
-  //     }
-  //   } catch (error) {
-  //     res.status(400).render('userreviews', { error: `${error}` });
-  //   }
-  // });
-
 
   router
   .route('/userreviews')
@@ -913,63 +637,8 @@ router.route("/viewuser").get(async (req, res) => {
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
   });
-  
 
-  // router.route("/creditsTransfer")
-  // .get(async (req, res) => {
-  //   // Render the credits transfer form
-  //   res.render("creditsTransfer");
-  // })
-  // .post(async (req, res) => {
-  //   try {
-  //     // Validate input fields
-  //     const { senderEmailAddress, receiverEmailAddress, numberOfCredits } = req.body;
-
-  //     if (!senderEmailAddress || !receiverEmailAddress || !numberOfCredits) {
-  //       throw "Please provide all the fields";
-  //     }
-
-  //     if(typeof senderEmailAddress !== "string") throw " senderEmailAddress is not valid";
-  //     if(typeof receiverEmailAddress !== "string") throw " receiverEmailAddress is not valid";
-  //     if(typeof numberOfCredits !== "string") throw " numberOfCredits is not valid";
-
-  //     if(!( /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(senderEmailAddress))){
-  //       throw 'Invalid sender email address'
-  //     }
-  //     if(!( /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(receiverEmailAddress))){
-  //       throw 'Invalid receiver email address'
-  //     }
-  //     // Assuming you have a function to get the currently logged-in user
-  //     // const currentUser = getCurrentUser(req); // Update this based on your actual implementation
-
-  //     // Perform the credits transfer
-  //     // const result = await creditsTransfer(senderName, receiverFirstName, receiverLastName, receiverEmailAddress, numberOfCredits);
-  //     const result = await creditsTransfer(
-  //       // req.body.senderEmailAddress,
-  //       // req.body.receiverFirstName,
-  //       // req.body.receiverLastName,
-  //       // req.body.receiverEmailAddress,
-  //       // req.body.numberOfCredits
-  //       senderEmailAddress, receiverEmailAddress, numberOfCredits
-  //     );
-  //     // senderEmailAddress, receiverFirstName, receiverLastName, receiverEmailAddress, numberOfCredits
-  //     // Check the result of the credits transfer
-  //     // if (result.success) {
-  //     //   // Handle success (e.g., display success message, redirect, etc.)
-  //     //   return res.json({ success: true, message: `Credits transfer successful` });
-  //     // } else {
-  //     //   // Handle failure (e.g., display error message, redirect, etc.)
-  //     //   return res.status(400).render("creditsTransfer", { error: `${result.message}` });
-  //     // }
-  //     return res.json({ success: result.success, message: result.message });
-
-  //   } catch (error) {
-  //     // Handle validation errors or other errors
-  //     console.error(error);
-  //     return res.status(400).render("creditsTransfer", { error: `${error}` });
-  //   }
-  // });
-
+ 
   router.route('/creditsTransfer')
   .get(async (req, res) => {
     // Render the credits transfer form
