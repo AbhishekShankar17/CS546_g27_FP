@@ -378,6 +378,9 @@ export const eventRegistration = async (eventName, location, date, time, req) =>
       throw new Error('User is already registered for this event');
     }
 
+    if (existingEvent.registrations.length >= existingEvent.capacity) {
+      throw new Error('Event has reached its maximum capacity. Cannot register.');
+    }
     // Register the user for the event with a status (e.g., 'pending')
     const registration = {
       userId: user._id.toString(),
@@ -405,7 +408,8 @@ export const eventRegistration = async (eventName, location, date, time, req) =>
     return { success: false, message: error.message || 'An error occurred during registration' };
   }
 };
-   
+
+
 
 export const creditsTransfer = async (senderEmailAddress, receiverEmailAddress, numberOfCredits, currentUserEmail) => {
  
