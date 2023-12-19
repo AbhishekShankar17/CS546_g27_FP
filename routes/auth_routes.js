@@ -360,6 +360,13 @@ router.route("/createEvent")
       return res.status(400).render("createEvent", { error: `${e}` });
     }
   });
+
+
+
+
+
+
+
 router.route("/filters")
   .get(async (req, res) => {
     try {
@@ -593,7 +600,54 @@ router.route("/viewuser").get(async (req, res) => {
     }
   });
 
- router.route("/eventRegistration")
+  // router.route("/eventRegistration")
+  // .get(async (req, res) => {
+  //   // Render the event registration form
+  //   res.render("eventRegistration");
+  // })
+  // router.post('/eventRegistration', async (req, res) => {
+  //   try {
+  //     // Extract necessary parameters from the request body or wherever they are available
+  //     const { eventName, location, date, time } = req.body;
+  //     const emailAddress = req.session.user.emailAddress;
+  //     // Check if the user is authenticated
+  //     if (!req.session.user) {
+  //       return res.status(401).json({ success: false, message: 'User not authenticated' });
+  //     }
+  
+  //     // Call eventRegistration, passing the necessary parameters and the request object
+  //     const result = await eventRegistration(eventName, location, date, time, req);
+  
+  //     // Check the result and send a response
+  //     if (result.success) {
+  //       const registrationEmailText = 'You have successfully created the event';
+  //       await sendEventRegistrationEmail(
+  //         emailAddress,
+  //       'Hurray!!!', // Email subject
+  //       registrationEmailText     // Email body/content
+  //     ); 
+  //     return res.render("eventSuccess", {
+  //       message: "Event Registration Approved",
+  //     });
+  //     } else {
+  //       res.status(400).json({ success: false, message: result.message });
+  //     }
+  //   } catch (error) {
+  //     // Handle other errors
+  //     if (error.message === 'User is already registered for this event') {
+  //       return res.status(400).json({ success: false, message: 'User is already registered for this event' });
+  //     } else if (error.message === '
+  // ') {
+  //       return res.status(400).json({ success: false, message: 'Event has reached its maximum capacity. Cannot register.' });
+  //     } else {
+  //       // Handle other errors
+  //       console.error(error);
+  //       return res.status(500).json({ success: false, message: 'Internal server error' });
+  //     }
+  //   }
+  // });
+
+  router.route("/eventRegistration")
   .get(async (req, res) => {
     // Render the event registration form
     res.render("eventRegistration");
@@ -620,7 +674,7 @@ router.route("/viewuser").get(async (req, res) => {
         registrationEmailText     // Email body/content
       ); 
       return res.render("eventSuccess", {
-        message: "event registered",
+        message: "Event Registration Approved",
       });
       } else {
         res.status(400).json({ success: false, message: result.message });
@@ -629,8 +683,8 @@ router.route("/viewuser").get(async (req, res) => {
       // Handle other errors
       if (error.message === 'User is already registered for this event') {
         return res.status(400).json({ success: false, message: 'User is already registered for this event' });
-      } else if (error.message === 'Event has reached its maximum capacity. Cannot register.') {
-        return res.status(400).json({ success: false, message: 'Event has reached its maximum capacity. Cannot register.' });
+      } else if (error.message === 'Event Registration Rejected, Event Capacity Full') {
+        return res.status(400).json({ success: false, message: 'Event Registration Rejected, Event Capacity Full' });
       } else {
         // Handle other errors
         console.error(error);
@@ -638,6 +692,8 @@ router.route("/viewuser").get(async (req, res) => {
       }
     }
   });
+  
+
  
   router.route('/creditsTransfer')
   .get(async (req, res) => {
@@ -695,22 +751,28 @@ router.route("/viewuser").get(async (req, res) => {
     }
   });
   
-  router.route('/deleteEvent').get(async (req, res) => {
-    res.render("deleteEvent");
-  });
-  
-  router.route('/deleteMeeting').post(async (req, res) => {
+  router.route("/deleteEvent")
+  .get(async (req, res) => {
+    res.render('deleteEvent');
+  })
+  .post(async (req, res) => {
     try {
-      const eventName = req.body.eventName; // Get the eventName from the request body
-      // const organizerId = req.user.id; // Assuming you use authentication middleware
-  
-      const result = await deleteEvent(eventName); // Pass eventName to deleteEvent function
-  
+      const { eventName, location, time, date } = req.body;
+      const organizerId = req.session.user._id;
+      console.log(organizerId);
+
+      const result = await deleteEvent(eventName, location, time, date, organizerId);
+
       res.json({ message: result });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error });
+      if (error === 'Event not found.' || error === 'Unauthorized') {
+        res.status(403).json({ error });
+      } else {
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
     }
   });
+
 
 export default router;
