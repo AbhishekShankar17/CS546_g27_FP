@@ -280,23 +280,71 @@ if (FeedbackForm) {
 }
 
 
+// const searchForm = document.getElementById('searchForm');
+// const searchQuery = document.getElementById('searchQuery');
+// const searchQueryError = document.getElementById('no-eventName');
+
+// if (searchForm) {
+//   searchForm.addEventListener('submit', (event) => {
+//     event.preventDefault();
+
+//     // Reset all error messages
+//     searchQueryError.hidden = true;
+
+//     if (searchQuery.value.trim() !== "") {
+//       searchForm.submit();
+//     } else {
+//       searchQueryError.hidden = false;
+//     }
+//   });
+// }
+
 const searchForm = document.getElementById('searchForm');
-const searchQuery = document.getElementById('searchQuery');
 const searchQueryError = document.getElementById('no-eventName');
 
 if (searchForm) {
-  searchForm.addEventListener('submit', (event) => {
-    event.preventDefault();
+  searchForm.addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent default form submission
 
     // Reset all error messages
     searchQueryError.hidden = true;
 
-    if (searchQuery.value.trim() !== "") {
-      searchForm.submit();
-    } else {
+    // Collect form data
+    const searchParams = new URLSearchParams();
+    searchParams.append('eventName', document.getElementById('eventName').value.trim());
+    searchParams.append('location', document.getElementById('location').value.trim());
+    searchParams.append('date', document.getElementById('date').value.trim());
+    searchParams.append('time', document.getElementById('time').value.trim());
+
+    try {
+      // Make an asynchronous POST request to the server
+      const response = await fetch('/filters', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: searchParams,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      // Parse the JSON response
+      const eventsList = await response.json();
+
+      // Handle the received eventsList as needed (e.g., update UI)
+      console.log('Received events:', eventsList);
+    } catch (error) {
+      // Log and handle errors
+      console.error('Error during form submission:', error);
+
+      // Display an error message to the user, e.g., update UI with error
       searchQueryError.hidden = false;
     }
   });
 }
 
-  
+
+
+

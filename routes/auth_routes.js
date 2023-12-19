@@ -487,14 +487,14 @@ router.route("/filters")
   .get(async (req, res) => {
     try {
       // Handle search query if provided
-      const searchQuery = req.query.searchQuery; // Assuming the search query is in the query parameters
+      const searchQuery = req.query;
       let eventsList;
 
-      if (searchQuery) {
-        // If there's a search query, filter events based on it
+      if (Object.values(searchQuery).some(value => value !== undefined && value !== '')) {
+        // If at least one search criteria is provided, filter events based on it
         eventsList = await searchEvents(searchQuery);
       } else {
-        // If no search query, get all events
+        // If no search criteria, get all events
         eventsList = await getallevents();
       }
 
@@ -512,7 +512,7 @@ router.route("/filters")
   .post(async (req, res) => {
     try {
       // Handle search query if provided
-      const searchQuery = req.body.searchQuery;
+      const searchQuery = req.body;
       const eventsList = await searchEvents(searchQuery);
       res.json(eventsList);
       console.log("Got the events successfully");
@@ -521,6 +521,8 @@ router.route("/filters")
       res.status(500).json({ error: e.message || 'Internal Server Error' });
     }
   });
+
+
 
 
 

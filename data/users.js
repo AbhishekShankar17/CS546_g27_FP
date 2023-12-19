@@ -984,17 +984,75 @@ export const deleteEvent = async (eventName, location, time, date, organizerId) 
 };
 
 
-export const searchEvents = async (eventName) => {
-  if(!eventName){
-    throw "eventName must be provided!!";
+// export const searchEvents = async (eventName) => {
+//   if(!eventName){
+//     throw "eventName must be provided!!";
+//   }
+//   if(!(typeof eventName === 'string') || eventName.trim().length === 0){
+//     throw "eventName should be a non-empty string!!";
+//   }
+//   eventName = eventName.toLowerCase();
+//   const eventCollection = await events();
+//   const searchedEvent = await eventCollection.findOne({
+//     eventName
+//   });
+//   return searchedEvent;
+// }
+
+export const searchEvents = async (searchQuery) => {
+  if (!searchQuery) {
+    throw new Error("Search query must be provided!!");
   }
-  if(!(typeof eventName === 'string') || eventName.trim().length === 0){
-    throw "eventName should be a non-empty string!!";
+
+  const { eventName, location, date, time } = searchQuery;
+
+  if (!eventName && !location && !date && !time) {
+    throw new Error('Please provide at least one search criteria');
   }
-  eventName = eventName.toLowerCase();
+
+  // Validate the search criteria (you can customize these validations as needed)
+  if (eventName && (typeof eventName !== 'string' || eventName.trim().length === 0)) {
+    throw new Error("Event name should be a non-empty string!!");
+  }
+
+  if (location && (typeof location !== 'string' || location.trim().length === 0)) {
+    throw new Error("Location should be a non-empty string!!");
+  }
+
+  // Additional validation for other fields if needed...
+
+  // Format date and time if provided
+  let formattedDate, formattedTime;
+  if (date) {
+    // Assume date is in the format 'YYYY-MM-DD'
+    const [year, month, day] = date.split('-');
+    formattedDate = `${month}/${day}/${year}`;
+  }
+
+  if (time) {
+    // Format time to HH:MM AM/PM
+    formattedTime = new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
+  // Convert event name and location to lowercase for case-insensitive search
+  const eventNameLower = eventName ? eventName.toLowerCase() : undefined;
+  const locationLower = location ? location.toLowerCase() : undefined;
+
   const eventCollection = await events();
-  const searchedEvent = await eventCollection.findOne({
-    eventName
-  });
-  return searchedEvent;
-}
+
+  // Construct the query based on the provided search criteria
+  const query = {
+    $or: [
+      eventNameLower ? { eventName: eventNameLower } : null,
+      locationLower ? { location: locationLower } : null,
+      formattedDate ? { date: formattedDate } : null,
+      formattedTime ? { time: formattedTime } : null,
+    ].filter(Boolean),
+  };
+
+  const searchedEvents = await eventCollection.find(query).toArray();
+  return searchedEvents;
+};

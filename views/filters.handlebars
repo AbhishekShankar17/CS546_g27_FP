@@ -1,13 +1,37 @@
 <div class="search">
-  <p>Enter a search query below to search the events database.</p>
+  <p>Enter search criteria below to search the events database. You can leave fields blank if not applicable.</p>
 </div>
+</br>
+</br>
 
 <form class="searchForm" action="/filters" id="searchForm" method="post">
   <div>
-    <label for="searchQuery">Event Name:</label>
-    <input name="searchQuery" id="searchQuery" type="text" placeholder="Enter the event name">
-    <div class="error" id="no-eventName" hidden>Please provide the event name</div>
+    <label for="eventName">Event Name:</label>
+    <input name="eventName" id="eventName" type="text" placeholder="Enter the event name">
   </div>
+  </br>
+  </br>
+
+  <div>
+    <label for="location">Location:</label>
+    <input name="location" id="location" type="text" placeholder="Enter the location">
+  </div>
+  </br>
+    </br>
+    <div>
+        <label for="date">Enter date:</label>
+        <input name="date" id="date" type="date">
+    </div>
+
+  
+    </br>
+    </br>
+    <div>
+        <label for="time">Enter time:</label>
+        <input name="time" id="time" type="time">
+    </div>
+    </br>
+    </br>
 
   <button class="submit" type="submit">Search</button>
 </form>
@@ -15,3 +39,7 @@
 <ul id="searchResults">
   <!-- Results inserted dynamically -->
 </ul>
+
+</br>
+</br>
+<a class="Goback" href="/login" style="position:absolute; bottom:1cm">Goback</a>
