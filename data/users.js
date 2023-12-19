@@ -729,111 +729,6 @@ export const getAllReviewsByEventId = async (eventId) => {
 
 
 
-// export const deleteEvent = async (meetingId) => {
-//   const eventCollection = await events();
-//   const usersCollection = await users();
-
-//   try {
-//     // Find the event by ID
-//     const event = await eventCollection.findOne({ _id: new ObjectId(meetingId) });
-
-//     if (!event) {
-//       throw 'Meeting not found';
-//     }
-
-//     // Check if the user is the organizer
-//     // if (String(event.organizer) !== organizerId) {
-//     //   throw 'Unauthorized';
-//     // }
-
-//     // Check if the meeting is scheduled in the future (use a specific field for this)
-
-//       // Delete the event
-//       await eventCollection.deleteOne({ _id: new ObjectId(meetingId) });
-
-//       // Refund credits to the organizer
-//       // await usersCollection.updateOne(
-//       //   { _id: ObjectId(organizerId) },
-//       //   { $inc: { credits: 1 } }
-//       // );
-
-//       return 'Meeting deleted successfully';
-
-//   } catch (error) {
-//     console.error(error);
-//     throw 'Internal Server Error';
-//   }
-// };
-
-export const deleteEvent = async (eventName, location, time, date, organizerId) => {
-  try {
-    if (!eventName || !location || !date || !time || !organizerId) {
-      throw "All fields must be provided.";
-    }
-
-    if (typeof eventName !== 'string' || eventName.trim().length === 0) {
-      throw "Event name must be a non-empty string.";
-    }
-
-    if (typeof location !== 'string' || location.trim().length === 0) {
-      throw "Location must be a non-empty string.";
-    }
-
-    // Assume date is in the format 'YYYY-MM-DD'
-    const [year, month, day] = date.split('-');
-    const formattedDate = `${month}/${day}/${year}`;
-
-    // Format time to HH:MM AM/PM
-    const formattedTime = new Date(`1970-01-01T${time}`).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
-    const eventCollection = await events();
-
-    // Find the event by name, location, time, and date
-    const event = await eventCollection.findOne({
-      eventName: eventName.toLowerCase(),
-      location: location.toLowerCase(),
-      time: formattedTime,
-      date: formattedDate,
-      organizer: new ObjectId(organizerId),
-    });
-
-    if (!event) {
-      throw 'Event not found.';
-    }
-
-    // Check if the user is the organizer
-    if (String(event.organizer) !== organizerId) {
-      throw 'Unauthorized';
-    }
-
-    // Delete the event
-    await eventCollection.deleteOne({ _id: event._id });
-
-    return 'Event deleted successfully';
-  } catch (error) {
-    console.error(error);
-    throw 'Internal Server Error';
-  }
-};
-
-
-// export const searchEvents = async (eventName) => {
-//   if(!eventName){
-//     throw "eventName must be provided!!";
-//   }
-//   if(!(typeof eventName === 'string') || eventName.trim().length === 0){
-//     throw "eventName should be a non-empty string!!";
-//   }
-//   eventName = eventName.toLowerCase();
-//   const eventCollection = await events();
-//   const searchedEvent = await eventCollection.findOne({
-//     eventName
-//   });
-//   return searchedEvent;
-// }
 
 export const searchEvents = async (searchQuery) => {
   if (!searchQuery) {
@@ -891,4 +786,48 @@ export const searchEvents = async (searchQuery) => {
 
   const searchedEvents = await eventCollection.find(query).toArray();
   return searchedEvents;
+};
+
+
+export const deleteEvent = async (eventName) => {
+  const eventCollection = await events();
+  const usersCollection = await users();
+
+  try {
+    // Find the event by eventName
+    const event = await eventCollection.findOne();
+
+
+    console.log(event)
+    if (!event) {
+      throw 'Meeting not found';
+    }
+
+    // Delete the event
+    await eventCollection.deleteOne({ eventName });
+
+    // Fetch the user's first name using the user ID from the event document
+    const organizer = event.organizer;
+
+    console.log(organizer)
+    const user = await usersCollection.findOne({ firstName : organizer });
+
+    console.log(user)
+    if (!user) {
+      throw 'User not found';
+    }
+
+    const userFirstName = user.firstName;
+
+    // Refund credits to the user by their first name
+    await usersCollection.updateOne(
+      { firstName: userFirstName },
+      { $inc: { credits: 1 } }
+    );
+
+    return 'Meeting deleted successfully';
+  } catch (error) {
+    console.error(error);
+    throw 'Internal Server Error';
+  }
 };

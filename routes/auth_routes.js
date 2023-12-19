@@ -757,26 +757,21 @@ router.route("/viewuser").get(async (req, res) => {
     }
   });
   
-  router.route("/deleteEvent")
-  .get(async (req, res) => {
-    res.render('deleteEvent');
-  })
-  .post(async (req, res) => {
+  router.route('/deleteEvent').get(async (req, res) => {
+    res.render("deleteEvent");
+  });
+  
+  router.route('/deleteMeeting').post(async (req, res) => {
     try {
-      const { eventName, location, time, date } = req.body;
-      const organizerId = req.session.user._id;
-      console.log(organizerId);
-
-      const result = await deleteEvent(eventName, location, time, date, organizerId);
-
+      const eventName = req.body.eventName; // Get the eventName from the request body
+      // const organizerId = req.user.id; // Assuming you use authentication middleware
+  
+      const result = await deleteEvent(eventName); // Pass eventName to deleteEvent function
+  
       res.json({ message: result });
     } catch (error) {
       console.error(error);
-      if (error === 'Event not found.' || error === 'Unauthorized') {
-        res.status(403).json({ error });
-      } else {
-        res.status(500).json({ error: 'Internal Server Error' });
-      }
+      res.status(500).json({ error });
     }
   });
 
