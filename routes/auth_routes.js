@@ -5,11 +5,17 @@ import { createEvent, createUser, getallevents, updateUser, getUserById, getallu
 
 import { checkUser } from "../data/users.js";
 import validation from '../helpers.js';
-
+import Handlebars from 'handlebars';
+import xss from 'xss';
 import { sendRegistrationEmail, sendEventCreationEmail, sendEventRegistrationEmail, sendCreditTransferEmail } from './emailNotifications.js';
 
 import { Router } from "express";
 const router = Router();
+
+Handlebars.registerHelper('sanitize', function (content) {
+  const safeContent = xss(content);
+  return new Handlebars.SafeString(safeContent);
+});
 
 router.route("/").get(
   (req, res, next) => {
