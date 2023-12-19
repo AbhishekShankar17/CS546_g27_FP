@@ -360,12 +360,6 @@ router.route("/createEvent")
       return res.status(400).render("createEvent", { error: `${e}` });
     }
   });
-
-
-
-
-
-
 router.route("/filters")
   .get(async (req, res) => {
     try {
