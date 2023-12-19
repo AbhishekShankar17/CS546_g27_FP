@@ -120,15 +120,6 @@ export const createEvent = async (
 ) => {
 
 
-
-    // if(!req.session.user || !req.session.user.emailAddress) throw "Organizer not found";
-
-    // const organizerEmailAddress = req.session.user.emailAddress;
-
-//   if (!organizerName || !date || !duration || !location || !time || !eventName || !capacity) {
-//     throw 'Error: Must provide all fields';
-//   }
-
 if ( !date || !duration || !location || !time || !eventName || !capacity) {
     throw 'Please provide all fields';
   }
@@ -170,9 +161,10 @@ if ( !date || !duration || !location || !time || !eventName || !capacity) {
     minute: '2-digit',
   });
 
-  const currDate = new Date();
+  const eventDateTime = new Date(`${formattedDate} ${formattedTime}`);
 
-  const inpDate = new Date(date)
+  const currDateTime = new Date();
+
 
 
 inpDate.setHours(currDate.getHours());
@@ -185,6 +177,10 @@ inpDate.setMilliseconds(currDate.getMilliseconds());
   if (currDate > inpDate) {
     // Validation failed, the provided date and time is earlier than today's date and time
     throw new Error("Date and time cannot be earlier than today's date and time.");
+
+  if (eventDateTime <= currDateTime) {
+    throw new Error("Event date and time must be in the future");
+
   }
 
   let newEvent = {
@@ -215,10 +211,6 @@ inpDate.setMilliseconds(currDate.getMilliseconds());
   // Assuming you want to send a JSON response
   return { meeting: newEvent };
 };
-
-
-
-
 export const getallevents = async (
   ) => {
     const eventsCollection = await events();
@@ -397,6 +389,9 @@ export const eventRegistration = async (eventName, location, date, time, req) =>
       throw new Error('User is already registered for this event');
     }
 
+    if (existingEvent.registrations.length >= existingEvent.capacity) {
+      throw new Error('Event has reached its maximum capacity. Cannot register.');
+    }
     // Register the user for the event with a status (e.g., 'pending')
     const registration = {
       userId: user._id.toString(),
@@ -424,7 +419,8 @@ export const eventRegistration = async (eventName, location, date, time, req) =>
     return { success: false, message: error.message || 'An error occurred during registration' };
   }
 };
-   
+
+
 
 export const creditsTransfer = async (senderEmailAddress, receiverEmailAddress, numberOfCredits, currentUserEmail) => {
  
