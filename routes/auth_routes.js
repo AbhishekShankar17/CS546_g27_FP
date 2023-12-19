@@ -599,7 +599,7 @@ router.route("/viewuser").get(async (req, res) => {
     }
   });
 
-  router.route("/eventRegistration")
+ router.route("/eventRegistration")
   .get(async (req, res) => {
     // Render the event registration form
     res.render("eventRegistration");
@@ -633,11 +633,17 @@ router.route("/viewuser").get(async (req, res) => {
       }
     } catch (error) {
       // Handle other errors
-      console.error(error);
-      res.status(500).json({ success: false, message: 'Internal server error' });
+      if (error.message === 'User is already registered for this event') {
+        return res.status(400).json({ success: false, message: 'User is already registered for this event' });
+      } else if (error.message === 'Event has reached its maximum capacity. Cannot register.') {
+        return res.status(400).json({ success: false, message: 'Event has reached its maximum capacity. Cannot register.' });
+      } else {
+        // Handle other errors
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Internal server error' });
+      }
     }
   });
-
  
   router.route('/creditsTransfer')
   .get(async (req, res) => {
